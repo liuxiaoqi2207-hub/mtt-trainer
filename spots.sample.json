@@ -1,0 +1,11 @@
+[
+  {
+    "id": "20bb_btn_open_a9s",
+    "module": "20bb Open",
+    "heroPosition": "BTN",
+    "effectiveBb": 20,
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A9s",
+    "recommendedAction": "Raise"
+  }
+]

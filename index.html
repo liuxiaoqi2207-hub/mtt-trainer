@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MTT Trainer</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <h1>MTT Trainer</h1>
+        <p>亚洲线上系列赛训练器 V1</p>
+      </div>
+      <div class="pill" id="todayStats">今日 0 题</div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="train">开始训练</button>
+      <button class="tab" data-tab="mistakes">错题本</button>
+      <button class="tab" data-tab="cards">规则卡片</button>
+      <button class="tab" data-tab="stats">我的统计</button>
+    </nav>
+
+    <main>
+      <section class="panel active" id="trainPanel">
+        <div class="toolbar">
+          <label>训练模式
+            <select id="moduleSelect"></select>
+          </label>
+          <button id="nextSpotBtn" class="secondary">换一题</button>
+        </div>
+
+        <div class="spot-card" id="spotCard">
+          <div class="spot-header">
+            <span class="tag" id="spotModule">20bb</span>
+            <span class="tag muted" id="spotStage">Preflop</span>
+          </div>
+          <div class="spot-grid">
+            <div><span>Hero位置</span><strong id="heroPosition"></strong></div>
+            <div><span>有效筹码</span><strong id="effectiveBb"></strong></div>
+            <div><span>前序动作</span><strong id="actionBefore"></strong></div>
+            <div><span>手牌</span><strong id="heroHand"></strong></div>
+            <div><span>赛况</span><strong id="spotContext"></strong></div>
+            <div><span>标签</span><strong id="spotTags"></strong></div>
+          </div>
+        </div>
+
+        <div class="answers" id="answers"></div>
+
+        <div class="feedback hidden" id="feedbackBox">
+          <h3 id="feedbackTitle"></h3>
+          <p><strong>推荐动作：</strong><span id="recommendedAction"></span></p>
+          <p><strong>解释：</strong><span id="explanation"></span></p>
+          <p><strong>可接受动作：</strong><span id="acceptableActions"></span></p>
+        </div>
+      </section>
+
+      <section class="panel" id="mistakesPanel">
+        <div class="section-head">
+          <h2>错题本</h2>
+          <button id="clearMistakesBtn" class="danger small">清空错题</button>
+        </div>
+        <div id="mistakesList" class="list"></div>
+      </section>
+
+      <section class="panel" id="cardsPanel">
+        <div class="section-head">
+          <h2>规则卡片</h2>
+        </div>
+        <div id="ruleCards" class="cards"></div>
+      </section>
+
+      <section class="panel" id="statsPanel">
+        <div class="section-head">
+          <h2>我的统计</h2>
+        </div>
+        <div class="stats-grid">
+          <div class="stat"><span>总答题</span><strong id="statTotal">0</strong></div>
+          <div class="stat"><span>正确率</span><strong id="statAccuracy">0%</strong></div>
+          <div class="stat"><span>错题数</span><strong id="statMistakes">0</strong></div>
+          <div class="stat"><span>最弱模块</span><strong id="statWeakest">-</strong></div>
+        </div>
+        <div id="moduleBreakdown" class="list compact"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
