@@ -7,6 +7,7 @@
 - 模块切换
 - 即时反馈
 - 错题本
+- 只刷错题模式
 - 规则卡片
 - 本地统计（localStorage）
 
@@ -17,6 +18,7 @@
 - 10bb Jam
 - Bubble ICM
 - Final Table
+- Asia Series Mode（亚洲线上系列赛模式）
 
 ## 用法
 直接浏览器打开 `index.html` 即可。
