@@ -18,6 +18,7 @@
 
     <nav class="tabs">
       <button class="tab active" data-tab="train">开始训练</button>
+      <button class="tab" data-tab="viewer">范围查看</button>
       <button class="tab" data-tab="mistakes">错题本</button>
       <button class="tab" data-tab="cards">规则卡片</button>
       <button class="tab" data-tab="stats">我的统计</button>
@@ -54,6 +55,54 @@
           <p><strong>推荐动作：</strong><span id="recommendedAction"></span></p>
           <p><strong>解释：</strong><span id="explanation"></span></p>
           <p><strong>可接受动作：</strong><span id="acceptableActions"></span></p>
+        </div>
+      </section>
+
+      <section class="panel" id="viewerPanel">
+        <div class="section-head">
+          <h2>翻前范围查看器</h2>
+        </div>
+        <div class="toolbar viewer-toolbar">
+          <label>筹码深度
+            <select id="viewerStack">
+              <option value="20bb">20bb</option>
+              <option value="15bb">15bb</option>
+            </select>
+          </label>
+          <label>位置
+            <select id="viewerPosition">
+              <option value="UTG">UTG</option>
+              <option value="HJ">HJ</option>
+              <option value="CO">CO</option>
+              <option value="BTN">BTN</option>
+              <option value="SB">SB</option>
+            </select>
+          </label>
+          <label>场景
+            <select id="viewerScenario">
+              <option value="RFI">RFI</option>
+            </select>
+          </label>
+        </div>
+        <div class="viewer-layout">
+          <div id="rangeGrid" class="range-grid"></div>
+          <div class="range-side">
+            <div class="item">
+              <h4 id="rangeTitle">20bb / UTG / RFI</h4>
+              <p id="rangeSummary">选择一个位置查看简化翻前范围。</p>
+            </div>
+            <div class="item">
+              <h4>颜色说明</h4>
+              <p><span class="legend open"></span> Open / Raise</p>
+              <p><span class="legend mix"></span> 可混 / 边缘</p>
+              <p><span class="legend jam"></span> Jam / 激进动作</p>
+              <p><span class="legend fold"></span> Fold</p>
+            </div>
+            <div class="item">
+              <h4>当前手牌</h4>
+              <p id="cellDetail">点矩阵里的某个手牌格子，查看该手在当前 spot 的建议动作。</p>
+            </div>
+          </div>
         </div>
       </section>
 
