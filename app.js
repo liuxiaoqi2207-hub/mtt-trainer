@@ -4904,6 +4904,45 @@ function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
 function qs(id){ return document.getElementById(id); }
 function qsa(sel){ return document.querySelectorAll(sel); }
 
+function getActionFrequencies(stack, pos, hand){
+  const cfg = viewerRanges[stack]?.[pos];
+  if(!cfg) return {raise:0, call:0, jam:0};
+  const inRaise = cfg.raise?.includes(hand) ? 100 : 0;
+  const inCall = cfg.call?.includes(hand) ? 100 : 0;
+  const inJam = cfg.jam?.includes(hand) ? 100 : 0;
+  let raise = inRaise, call = inCall, jam = inJam;
+  if(cfg.mix?.includes(hand)){
+    if(pos === 'SB'){
+      // SB：边界优先按 call > raise > jam 视觉表达
+      if(!call && !raise && !jam){ call = 50; raise = 25; jam = 0; }
+      else if(call && !raise && !jam){ raise = 25; }
+      else if(raise && !call && !jam){ call = 25; }
+      else if(jam && !call && !raise){ call = 25; }
+    } else {
+      if(!raise && !jam){ raise = 50; }
+      else if(raise && !jam){ jam = 25; }
+      else if(jam && !raise){ raise = 25; }
+    }
+  }
+  return {raise, call, jam};
+}
+function describeFrequencies(freq){
+  return `Call ${freq.call}% / Raise ${freq.raise}% / Jam ${freq.jam}%`;
+}
+function classifyDetailed(stack, pos, hand){
+  const freq = getActionFrequencies(stack, pos, hand);
+  const top = [
+    {key:'call', label:'C', cls:'call', value:freq.call},
+    {key:'raise', label:'R', cls:'open', value:freq.raise},
+    {key:'jam', label:'J', cls:'jam', value:freq.jam}
+  ].sort((a,b)=>b.value-a.value)[0];
+  if(top.value <= 0) return {cls:'fold', short:'F', pct:'0%', text:describeFrequencies(freq)};
+  let intensity = 'low';
+  if(top.value >= 90) intensity = 'high';
+  else if(top.value >= 50) intensity = 'mid';
+  return {cls:`${top.cls} ${intensity}`, short:top.label, pct:`${top.value}%`, text:describeFrequencies(freq)};
+}
+
 function initTabs(){ qsa('.tab').forEach(btn=>btn.addEventListener('click',()=>{ qsa('.tab').forEach(x=>x.classList.remove('active')); qsa('.panel').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); qs(btn.dataset.tab+'Panel').classList.add('active'); renderAll(); })); }
 function initModules(){ const modules=['全部题目','只刷错题',...new Set(spots.map(s=>s.module))]; qs('moduleSelect').innerHTML=modules.map(m=>`<option value="${m}">${m}</option>`).join(''); }
 function getPool(){ const module=qs('moduleSelect').value; if(module==='全部题目') return spots; if(module==='只刷错题') return state.mistakes.length?state.mistakes:spots.slice(0,20); return spots.filter(s=>s.module===module); }
@@ -4914,7 +4953,7 @@ function renderMistakes(){ const wrap=qs('mistakesList'); if(!state.mistakes.len
 function renderCards(){ qs('ruleCards').innerHTML=ruleCards.map(c=>`<div class="card"><h3>${c.title}</h3><ul>${c.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join(''); }
 function renderStats(){ qs('todayStats').textContent=`今日 ${state.today[todayKey()]||0} 题`; qs('statTotal').textContent=state.total; qs('statAccuracy').textContent=state.total?`${Math.round((state.correct/state.total)*100)}%`:'0%'; qs('statMistakes').textContent=state.mistakes.length; const weakest=Object.entries(state.modules).filter(([,v])=>v.total>0).map(([k,v])=>({k,acc:v.correct/v.total})).sort((a,b)=>a.acc-b.acc)[0]; qs('statWeakest').textContent=weakest?weakest.k:'-'; const rows=Object.entries(state.modules).sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>`<div class="item"><h4>${k}</h4><p>总题数：${v.total} ｜ 正确率：${v.total?Math.round(v.correct/v.total*100):0}%</p></div>`); qs('moduleBreakdown').innerHTML=rows.length?rows.join(''):'<div class="item"><p>还没有模块统计。</p></div>'; }
 function classifyHand(stack, pos, hand){ const cfg = viewerRanges[stack]?.[pos]; if(!cfg) return {cls:'fold', text:'当前未配置'}; const inRaise = cfg.raise?.includes(hand); const inCall = cfg.call?.includes(hand); const inJam = cfg.jam?.includes(hand); const inMix = cfg.mix?.includes(hand); if(inRaise && !inCall && !inJam) return {cls:'open', text:'建议 Raise'}; if(inCall && !inRaise && !inJam) return {cls:'mix', text:'建议 Call'}; if(inJam && !inRaise && !inCall) return {cls:'jam', text:'建议 Jam / All-in'}; if(inRaise || inCall || inJam || inMix) { const actions=[inRaise?'Raise':'', inCall?'Call':'', inJam?'Jam':''].filter(Boolean).join(' / ') || '边界多动作'; return {cls:'mix', text:actions}; } return {cls:'fold', text:'建议 Fold'}; }
-function renderViewer(){ const stack=qs('viewerStack')?.value || '20bb'; const pos=qs('viewerPosition')?.value || 'UTG'; const cfg=viewerRanges[stack]?.[pos]; qs('rangeTitle').textContent=`${stack} / ${pos}`; qs('rangeSummary').textContent=cfg?.summary || '暂无数据'; const grid=qs('rangeGrid'); if(!grid) return; grid.innerHTML=''; allHands.forEach(hand=>{ const c=classifyHand(stack,pos,hand); const el=document.createElement('button'); el.className=`range-cell ${c.cls}`; el.textContent=hand; el.addEventListener('click',()=>{ qs('cellDetail').innerHTML=`<strong>${hand}</strong><br>${c.text}<br><span style="color:#95a1c9">${stack} / ${pos}</span>`; }); grid.appendChild(el); }); }
+function renderViewer(){ const stack=qs('viewerStack')?.value || '20bb'; const pos=qs('viewerPosition')?.value || 'UTG'; const cfg=viewerRanges[stack]?.[pos]; qs('rangeTitle').textContent=`${stack} / ${pos}`; qs('rangeSummary').textContent=cfg?.summary || '暂无数据'; const grid=qs('rangeGrid'); if(!grid) return; grid.innerHTML=''; allHands.forEach(hand=>{ const c=classifyDetailed(stack,pos,hand); const el=document.createElement('button'); el.className=`range-cell ${c.cls}`; el.innerHTML=`<span class="cell-top">${hand}</span><span class="cell-bottom">${c.short} ${c.pct}</span>`; el.addEventListener('click',()=>{ qs('cellDetail').innerHTML=`<strong>${hand}</strong><br>${c.text}<br><span style="color:#95a1c9">${stack} / ${pos}</span>`; }); grid.appendChild(el); }); }
 function renderAll(){ renderMistakes(); renderCards(); renderStats(); renderViewer(); }
 
 document.addEventListener('DOMContentLoaded', ()=>{ initTabs(); initModules(); qs('nextSpotBtn').addEventListener('click', pickSpot); qs('moduleSelect').addEventListener('change', pickSpot); qs('clearMistakesBtn').addEventListener('click', ()=>{ state.mistakes=[]; saveState(); renderMistakes(); renderStats(); }); ['viewerStack','viewerPosition','viewerScenario'].forEach(id=>qs(id)?.addEventListener('change', renderViewer)); renderAll(); pickSpot(); });
