@@ -28,3 +28,5 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
 .range-cell.fold.high,.range-cell.fold.mid,.range-cell.fold.low{background:#374151;border-color:#9ca3af;color:#f3f4f6}.range-cell.mix.high,.range-cell.mix.mid,.range-cell.mix.low{background:#5b4a14;border-color:#facc15;color:#fffbea}
 .range-side{display:grid;gap:12px}.legend{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:middle}.legend.open{background:#166534}.legend.call{background:#1d4f91}.legend.jam{background:#991b1b}.legend.fold{background:#4b5563}.legend.mix{background:#5b4a14}
 @media (max-width:680px){.app{padding:16px}.topbar,.toolbar,.section-head{align-items:flex-start;flex-direction:column}.viewer-layout{grid-template-columns:1fr}.range-grid{grid-template-columns:repeat(13,minmax(24px,1fr))}.range-cell .cell-top{font-size:9px}.range-cell .cell-bottom{font-size:7px}}
+
+.range-cell .cell-bottom{font-size:12px;font-weight:900;letter-spacing:.4px;}
