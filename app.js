@@ -47,11 +47,17 @@ function getFreq(stack,pos,hand){
 }
 function classifyDetailed(stack,pos,hand){
   const f=getFreq(stack,pos,hand);
-  const vals=[['C','call',f.call],['R','open',f.raise],['J','jam',f.jam],['F','fold',f.fold]].sort((a,b)=>b[2]-a[2]);
-  const [short, baseCls, top]=vals[0];
-  const intensity = top>=90 ? 'high' : top>=50 ? 'mid' : 'low';
-  return {cls:`${baseCls} ${intensity}`, short, pct:`${Math.round(top)}`, text:`Call ${f.call.toFixed(1)}% / Raise ${f.raise.toFixed(1)}% / Jam ${f.jam.toFixed(1)}% / Fold ${f.fold.toFixed(1)}%`};
+  return { text:`Call ${f.call.toFixed(1)}% / Raise ${f.raise.toFixed(1)}% / Jam ${f.jam.toFixed(1)}% / Fold ${f.fold.toFixed(1)}%`, freq:f };
 }
-function renderViewer(){ const stack=qs('viewerStack')?.value || '20bb'; const pos=qs('viewerPosition')?.value || 'UTG'; const cfg=viewerRanges[stack]?.[pos]; qs('rangeTitle').textContent=`${stack} / ${pos}`; qs('rangeSummary').textContent=cfg?.summary || '暂无数据'; const grid=qs('rangeGrid'); if(!grid) return; grid.innerHTML=''; allHands.forEach(hand=>{ const c=classifyDetailed(stack,pos,hand); const el=document.createElement('button'); el.className=`range-cell ${c.cls}`; el.innerHTML=`<span class="cell-top">${hand}</span><span class="cell-bottom">${c.short}</span>`; el.addEventListener('click',()=>{ qs('cellDetail').innerHTML=`<strong style="font-size:18px">${hand}</strong><br><span style="color:#eef4ff;font-weight:700">${c.text}</span><br><span style="color:#95a1c9">${stack} / ${pos}</span>`; }); grid.appendChild(el); }); }
+function buildCellBackground(freq){
+  const parts=[];
+  let start=0;
+  if(freq.call>0){ parts.push(`#2563eb ${start}% ${start+freq.call}%`); start+=freq.call; }
+  if(freq.raise>0){ parts.push(`#16a34a ${start}% ${start+freq.raise}%`); start+=freq.raise; }
+  if(freq.jam>0){ parts.push(`#dc2626 ${start}% ${start+freq.jam}%`); start+=freq.jam; }
+  if(start<100){ parts.push(`#475569 ${start}% 100%`); }
+  return `linear-gradient(135deg, ${parts.join(', ')})`;
+}
+function renderViewer(){ const stack=qs('viewerStack')?.value || '20bb'; const pos=qs('viewerPosition')?.value || 'UTG'; const cfg=viewerRanges[stack]?.[pos]; qs('rangeTitle').textContent=`${stack} / ${pos}`; qs('rangeSummary').textContent=cfg?.summary || '暂无数据'; const grid=qs('rangeGrid'); if(!grid) return; grid.innerHTML=''; allHands.forEach(hand=>{ const c=classifyDetailed(stack,pos,hand); const el=document.createElement('button'); el.className='range-cell'; el.style.background = buildCellBackground(c.freq); el.innerHTML=`<span class="cell-top">${hand}</span>`; el.addEventListener('click',()=>{ qs('cellDetail').innerHTML=`<strong style="font-size:18px">${hand}</strong><br><span style="color:#eef4ff;font-weight:700">${c.text}</span><br><span style="color:#95a1c9">${stack} / ${pos}</span>`; }); grid.appendChild(el); }); }
 function renderAll(){ renderMistakes(); renderCards(); renderStats(); renderViewer(); }
 document.addEventListener('DOMContentLoaded', ()=>{ initTabs(); initModules(); qs('nextSpotBtn').addEventListener('click', pickSpot); qs('moduleSelect').addEventListener('change', pickSpot); qs('clearMistakesBtn').addEventListener('click', ()=>{ state.mistakes=[]; saveState(); renderMistakes(); renderStats(); }); ['viewerStack','viewerPosition','viewerScenario'].forEach(id=>qs(id)?.addEventListener('change', renderViewer)); renderAll(); pickSpot(); });
