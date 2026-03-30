@@ -14,9 +14,14 @@ const allHands = (() => {
 const viewerRanges = {
   '20bb': {
     UTG: {
-      summary: '前位 20bb：中对+强 Ax+高 broadway 为主；别拿一堆小花连子硬开。',
-      open: ['66','77','88','99','TT','JJ','QQ','KK','AA','ATs','AJs','AQs','AKs','ATo','AJo','AQo','AKo','A9s','KQs','A5s','A4s'],
-      mix: ['55','AJo','KJs','QJs','A8s']
+      summary: '20bb UTG（公开资料校验版）：前位最紧，核心是中高对子、强 Ax、强 broadway；低 offsuit Ax 和小连子先别乱放。',
+      open: ['66','77','88','99','TT','JJ','QQ','KK','AA','A4s','A5s','A8s','A9s','ATs','AJs','AQs','AKs','ATo','AJo','AQo','AKo','KQs'],
+      mix: ['55','A7s','KJs','QJs']
+    },
+    LJ: {
+      summary: '20bb LJ（公开资料校验版）：比 UTG 稍宽，开始允许更多 suited Ax 和少量 broadway / 连通牌，但仍不能太松。',
+      open: ['55','66','77','88','99','TT','JJ','QQ','KK','AA','A3s','A4s','A5s','A6s','A7s','A8s','A9s','ATs','AJs','AQs','AKs','A9o','ATo','AJo','AQo','AKo','KJs','KQs','QJs'],
+      mix: ['KTo','QJo','98s','JTs']
     },
     HJ: {
       summary: '20bb HJ（公开资料校验版）：前位到中位过渡，低 Axo 仍偏紧；高张 broadway 比很多人想的更能开。',
@@ -34,9 +39,9 @@ const viewerRanges = {
       mix: ['K7o','Q7s','J7s','T7s','64s','53s']
     },
     SB: {
-      summary: 'SB 20bb：主线是 limp 为主，强牌 aggressive 分支；查看器先展示适合主动起手的价值段。',
-      open: ['77','88','99','TT','JJ','QQ','KK','AA','AJs','AQs','AKs','AQo','AKo','KQs','A2s','A3s','A4s','A5s'],
-      mix: ['55','66','ATs','A9s','KJs','QJs']
+      summary: '20bb SB（公开资料校验版）：SB 不是普通 RFI 位，理论常含 limp 体系；这里先展示可直接主动进攻的价值段，别把它当 BTN 宽偷。',
+      open: ['66','77','88','99','TT','JJ','QQ','KK','AA','A2s','A3s','A4s','A5s','A8s','A9s','ATs','AJs','AQs','AKs','ATo','AJo','AQo','AKo','KJs','KQs'],
+      mix: ['55','A6s','A7s','KTs','QJs','QTs']
     }
   },
   '15bb': {
@@ -70,9 +75,31 @@ const viewerRanges = {
 
 const spots = [
   { id:'20bb_btn_open_a9s', module:'20bb Open', stage:'Preflop', heroPosition:'BTN', effectiveBb:'20bb', actionBefore:'Folded to BTN', heroHand:'A9s', context:'中期常规局面', tags:['20bb','BTN','open'], options:['Fold','Raise','Jam','Call'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'20bb BTN 仍应保留小开体系，A9s 属于标准开池，不必直接 jam。' },
+  { id:'20bb_btn_open_a2o', module:'20bb Open', stage:'Preflop', heroPosition:'BTN', effectiveBb:'20bb', actionBefore:'Folded to BTN', heroHand:'A2o', context:'中期常规局面', tags:['20bb','BTN','open','public-calibrated'], options:['Fold','Raise','Jam','Call'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'公开资料校验版中，BTN 的 A2o 已进入可开范围，按钮位不能把这类小 Axo 弃过头。' },
+  { id:'20bb_btn_open_k7o', module:'20bb Open', stage:'Preflop', heroPosition:'BTN', effectiveBb:'20bb', actionBefore:'Folded to BTN', heroHand:'K7o', context:'中期常规局面', tags:['20bb','BTN','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Fold', acceptableActions:['Fold'], explanation:'即使在 BTN，K7o 仍更接近边界外，不要把按钮位自动理解成任何 Kx offsuit 都能开。' },
+  { id:'20bb_btn_open_q8o', module:'20bb Open', stage:'Preflop', heroPosition:'BTN', effectiveBb:'20bb', actionBefore:'Folded to BTN', heroHand:'Q8o', context:'中期常规局面', tags:['20bb','BTN','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'Q8o 在按钮位已可作为结构化宽开的一部分，但它是后位宽开，不代表手本身很强。' },
+  { id:'20bb_btn_open_64s', module:'20bb Open', stage:'Preflop', heroPosition:'BTN', effectiveBb:'20bb', actionBefore:'Folded to BTN', heroHand:'64s', context:'中期常规局面', tags:['20bb','BTN','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'64s 位于按钮位极边界，公开资料交叉后更适合按边界混合处理，而不是稳定宽开。' },
   { id:'20bb_co_open_66', module:'20bb Open', stage:'Preflop', heroPosition:'CO', effectiveBb:'20bb', actionBefore:'Folded to CO', heroHand:'66', context:'常规中期', tags:['20bb','CO','open'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'20bb CO 的 66 仍是标准开池手，不必把所有中等对子都粗暴 jam。' },
+  { id:'20bb_co_open_a5o', module:'20bb Open', stage:'Preflop', heroPosition:'CO', effectiveBb:'20bb', actionBefore:'Folded to CO', heroHand:'A5o', context:'常规中期', tags:['20bb','CO','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'A5o 在 CO 已进入较稳定开池段，是理解 CO 比 HJ 更宽的关键边界手。' },
+  { id:'20bb_co_open_k8s', module:'20bb Open', stage:'Preflop', heroPosition:'CO', effectiveBb:'20bb', actionBefore:'Folded to CO', heroHand:'K8s', context:'常规中期', tags:['20bb','CO','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'K8s 在 CO 属于边界牌，公开资料更倾向把它放在混合区，而不是稳定开池。' },
+  { id:'20bb_co_open_q9o', module:'20bb Open', stage:'Preflop', heroPosition:'CO', effectiveBb:'20bb', actionBefore:'Folded to CO', heroHand:'Q9o', context:'常规中期', tags:['20bb','CO','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'Q9o 是 CO 的典型边界 offsuit，适合拿来训练你对“能不能放宽到这类牌”的感觉。' },
+  { id:'20bb_co_open_t8s', module:'20bb Open', stage:'Preflop', heroPosition:'CO', effectiveBb:'20bb', actionBefore:'Folded to CO', heroHand:'T8s', context:'常规中期', tags:['20bb','CO','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'T8s 在 CO 接近边界混合；后位能放一点，但别因为 suited + 连子就全变稳定开。' },
   { id:'20bb_hj_open_kto', module:'20bb Open', stage:'Preflop', heroPosition:'HJ', effectiveBb:'20bb', actionBefore:'Folded to HJ', heroHand:'KTo', context:'中期 9人桌', tags:['20bb','HJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'公开资料交叉校验后，20bb HJ 的 KTo 应纳入开池骨架；不要把它误当成纯 fold。' },
   { id:'20bb_hj_open_a7o', module:'20bb Open', stage:'Preflop', heroPosition:'HJ', effectiveBb:'20bb', actionBefore:'Folded to HJ', heroHand:'A7o', context:'中期 9人桌', tags:['20bb','HJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Fold', acceptableActions:['Fold'], explanation:'公开资料校验版里，20bb HJ 的低 Axo 仍偏紧，A7o 先按 fold 训练，避免把低 Axo 开得过松。' },
+  { id:'20bb_hj_open_87s', module:'20bb Open', stage:'Preflop', heroPosition:'HJ', effectiveBb:'20bb', actionBefore:'Folded to HJ', heroHand:'87s', context:'中期 9人桌', tags:['20bb','HJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'87s 在 HJ 是典型边界牌，公开资料交叉后更适合按混合训练，而不是一刀切。' },
+  { id:'20bb_hj_open_qts', module:'20bb Open', stage:'Preflop', heroPosition:'HJ', effectiveBb:'20bb', actionBefore:'Folded to HJ', heroHand:'QTs', context:'中期 9人桌', tags:['20bb','HJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'QTs 在 HJ 属于靠近骨架边缘的高张同花牌，训练时别把它误当成稳定必开。' },
+  { id:'20bb_lj_open_a9o', module:'20bb Open', stage:'Preflop', heroPosition:'LJ', effectiveBb:'20bb', actionBefore:'Folded to LJ', heroHand:'A9o', context:'中期 8人桌', tags:['20bb','LJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'LJ 比 UTG 稍宽，A9o 已可进入开池骨架，是理解 LJ 与 UTG 差异的关键手。' },
+  { id:'20bb_lj_open_kto', module:'20bb Open', stage:'Preflop', heroPosition:'LJ', effectiveBb:'20bb', actionBefore:'Folded to LJ', heroHand:'KTo', context:'中期 8人桌', tags:['20bb','LJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'KTo 在 LJ 接近边界混合，说明 LJ 虽比 UTG 宽，但仍不能把中等 broadway 开得太随意。' },
+  { id:'20bb_lj_open_qjo', module:'20bb Open', stage:'Preflop', heroPosition:'LJ', effectiveBb:'20bb', actionBefore:'Folded to LJ', heroHand:'QJo', context:'中期 8人桌', tags:['20bb','LJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'QJo 在 LJ 仍是边界感很强的牌，用来训练“中前位 broadway 不能想当然全开”正合适。' },
+  { id:'20bb_lj_open_98s', module:'20bb Open', stage:'Preflop', heroPosition:'LJ', effectiveBb:'20bb', actionBefore:'Folded to LJ', heroHand:'98s', context:'中期 8人桌', tags:['20bb','LJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'98s 在 LJ 也更像边界混合，不要把所有 suited connector 都无脑放进中前位。' },
+  { id:'20bb_utg_open_a8s', module:'20bb Open', stage:'Preflop', heroPosition:'UTG', effectiveBb:'20bb', actionBefore:'Folded to UTG', heroHand:'A8s', context:'中期 8人桌', tags:['20bb','UTG','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'公开资料校验版中，20bb UTG 的 A8s 已可进入开池骨架，别把所有中小 Axs 都砍掉。' },
+  { id:'20bb_utg_open_55', module:'20bb Open', stage:'Preflop', heroPosition:'UTG', effectiveBb:'20bb', actionBefore:'Folded to UTG', heroHand:'55', context:'中期 8人桌', tags:['20bb','UTG','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'55 在 UTG 更适合按边界混合处理，这手很适合训练你对“前位小对子不是自动开”的感觉。' },
+  { id:'20bb_utg_open_kjs', module:'20bb Open', stage:'Preflop', heroPosition:'UTG', effectiveBb:'20bb', actionBefore:'Folded to UTG', heroHand:'KJs', context:'中期 8人桌', tags:['20bb','UTG','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'KJs 在 20bb UTG 公开资料里更像混合区，不能简单当成稳定 open。' },
+  { id:'20bb_utg_open_76s', module:'20bb Open', stage:'Preflop', heroPosition:'UTG', effectiveBb:'20bb', actionBefore:'Folded to UTG', heroHand:'76s', context:'中期 8人桌', tags:['20bb','UTG','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Fold', acceptableActions:['Fold'], explanation:'76s 是典型前位别高估的牌，20bb UTG 先按 fold 建立纪律最重要。' },
+  { id:'20bb_sb_open_a5s', module:'20bb Open', stage:'Preflop', heroPosition:'SB', effectiveBb:'20bb', actionBefore:'Folded to SB', heroHand:'A5s', context:'盲对盲前的 SB 首动', tags:['20bb','SB','open','public-calibrated'], options:['Fold','Raise','Limp','Jam'], recommendedAction:'Raise', acceptableActions:['Raise','Limp'], explanation:'SB 理论常有 limp 体系，但 A5s 属于可主动进攻主段；训练器先接受 Raise / Limp 双答案，避免把 SB 简化错。' },
+  { id:'20bb_sb_open_66', module:'20bb Open', stage:'Preflop', heroPosition:'SB', effectiveBb:'20bb', actionBefore:'Folded to SB', heroHand:'66', context:'盲对盲前的 SB 首动', tags:['20bb','SB','open','public-calibrated'], options:['Fold','Raise','Limp','Jam'], recommendedAction:'Raise', acceptableActions:['Raise','Limp'], explanation:'66 在 SB 属于可主动进攻的主段，但 SB 本身并非纯 RFI 逻辑，这里允许 Raise / Limp 都算可接受。' },
+  { id:'20bb_sb_open_a7s', module:'20bb Open', stage:'Preflop', heroPosition:'SB', effectiveBb:'20bb', actionBefore:'Folded to SB', heroHand:'A7s', context:'盲对盲前的 SB 首动', tags:['20bb','SB','open','public-calibrated'], options:['Fold','Raise','Limp','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Limp','Fold'], explanation:'A7s 在 SB 更像体系边界，尤其因为 SB 理论含 limp。把它当成纯 raise 或纯 fold 都会过于僵硬。' },
+  { id:'20bb_sb_open_qts', module:'20bb Open', stage:'Preflop', heroPosition:'SB', effectiveBb:'20bb', actionBefore:'Folded to SB', heroHand:'QTs', context:'盲对盲前的 SB 首动', tags:['20bb','SB','open','public-calibrated'], options:['Fold','Raise','Limp','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Limp','Fold'], explanation:'QTs 在 SB 仍带有很强体系性，公开资料交叉后更适合作为边界混合题来练，而不是做成死答案。' },
   { id:'15bb_sb_vs_btn_kqs', module:'15bb Reshove', stage:'Preflop', heroPosition:'SB', effectiveBb:'15bb', actionBefore:'BTN open 2.2bb', heroHand:'KQs', context:'中后期，前位弃牌', tags:['15bb','SB','vs BTN'], options:['Fold','Call','Jam','Raise'], recommendedAction:'Jam', acceptableActions:['Jam'], explanation:'15bb SB 对 BTN 宽开池，KQs 是高质量 reshove 手牌。' },
   { id:'15bb_bb_vs_co_ato', module:'15bb Reshove', stage:'Preflop', heroPosition:'BB', effectiveBb:'15bb', actionBefore:'CO open 2.2bb', heroHand:'ATo', context:'后段盲注压力大', tags:['15bb','BB','vs CO'], options:['Fold','Call','Jam'], recommendedAction:'Jam', acceptableActions:['Jam'], explanation:'15bb BB 对 CO 开池，ATo 常常更适合直接 reshove。' },
   { id:'30bb_bb_vs_btn_a5o', module:'BB Defend', stage:'Preflop', heroPosition:'BB', effectiveBb:'30bb', actionBefore:'BTN open 2.2bb', heroHand:'A5o', context:'常规深度', tags:['30bb','BB','defend'], options:['Fold','Call','3bet','Jam'], recommendedAction:'Call', acceptableActions:['Call','3bet'], explanation:'A5o 在 BB 对 BTN 一般具备防守价值，标准线偏 call。' },

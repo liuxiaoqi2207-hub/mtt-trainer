@@ -30,12 +30,27 @@
   4. BTN 不被简化成 any two suited 宽偷
 
 ## 本轮已改
+- `viewerRanges['20bb'].UTG`
+- `viewerRanges['20bb'].LJ`
 - `viewerRanges['20bb'].HJ`
 - `viewerRanges['20bb'].CO`
 - `viewerRanges['20bb'].BTN`
-- 新增训练题：
+- `viewerRanges['20bb'].SB`
+- `index.html` 查看器新增 `LJ`
+- `20bb Open` 题库从少量样例扩成了覆盖 `UTG / LJ / HJ / CO / BTN / SB` 的第一轮边界训练题集
+- 新增/修正的关键训练题包括：
   - `20bb HJ KTo -> Raise`
   - `20bb HJ A7o -> Fold`
+  - `20bb UTG 76s -> Fold`
+  - `20bb LJ A9o -> Raise`
+  - `20bb CO A5o -> Raise`
+  - `20bb BTN A2o -> Raise`
+
+## 关于 SB 的特别说明
+- 公开资料与理论体系普遍表明：`SB` 在 20bb 并不适合被粗暴视为普通 RFI 位
+- 理论里常存在 `limp` 体系
+- 因此本轮在 `SB` 训练题中，部分题会接受 `Raise / Limp` 或更宽的边界混合答案
+- 这是为了先避免把 SB 训练成明显错误的纯 RFI 思维
 
 ## 当前限制
 - 这仍不是用户 GTOWizard 主表的 1:1 镜像
