@@ -1,228 +1,4903 @@
-const ranks = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
-const allHands = (() => {
-  const out = [];
-  for (let i = 0; i < ranks.length; i++) {
-    for (let j = 0; j < ranks.length; j++) {
-      if (i === j) out.push(ranks[i] + ranks[j]);
-      else if (i < j) out.push(ranks[i] + ranks[j] + 's');
-      else out.push(ranks[j] + ranks[i] + 'o');
-    }
-  }
-  return out;
-})();
+const ranks = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
+const allHands = ["AA", "AKs", "AQs", "AJs", "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s", "AKo", "KK", "KQs", "KJs", "KTs", "K9s", "K8s", "K7s", "K6s", "K5s", "K4s", "K3s", "K2s", "AQo", "KQo", "QQ", "QJs", "QTs", "Q9s", "Q8s", "Q7s", "Q6s", "Q5s", "Q4s", "Q3s", "Q2s", "AJo", "KJo", "QJo", "JJ", "JTs", "J9s", "J8s", "J7s", "J6s", "J5s", "J4s", "J3s", "J2s", "ATo", "KTo", "QTo", "JTo", "TT", "T9s", "T8s", "T7s", "T6s", "T5s", "T4s", "T3s", "T2s", "A9o", "K9o", "Q9o", "J9o", "T9o", "99", "98s", "97s", "96s", "95s", "94s", "93s", "92s", "A8o", "K8o", "Q8o", "J8o", "T8o", "98o", "88", "87s", "86s", "85s", "84s", "83s", "82s", "A7o", "K7o", "Q7o", "J7o", "T7o", "97o", "87o", "77", "76s", "75s", "74s", "73s", "72s", "A6o", "K6o", "Q6o", "J6o", "T6o", "96o", "86o", "76o", "66", "65s", "64s", "63s", "62s", "A5o", "K5o", "Q5o", "J5o", "T5o", "95o", "85o", "75o", "65o", "55", "54s", "53s", "52s", "A4o", "K4o", "Q4o", "J4o", "T4o", "94o", "84o", "74o", "64o", "54o", "44", "43s", "42s", "A3o", "K3o", "Q3o", "J3o", "T3o", "93o", "83o", "73o", "63o", "53o", "43o", "33", "32s", "A2o", "K2o", "Q2o", "J2o", "T2o", "92o", "82o", "72o", "62o", "52o", "42o", "32o", "22"];
 
 const viewerRanges = {
   '20bb': {
-    UTG: {
-      summary: "20bb UTG（这包为准）：已接入 Raise + Jam 双文件；前位几乎以小开为主，jam 极少。",
-      open: ["AA", "A4s", "A5s", "A6s", "A7s", "A8s", "A9s", "ATs", "ATo", "AJs", "AJo", "AQs", "AQo", "AKs", "AKo", "66", "77", "88", "T8s", "K8s", "99", "T9s", "J9s", "Q9s", "K9s", "TT", "JTs", "QTs", "KTs", "JJ", "QJs", "KJs", "KJo", "QQ", "KQs", "KQo", "KK"],
-      jam: [],
-      mix: ["A9o", "KTo", "Q8s", "QJo"]
-    },
-    LJ: {
-      summary: "20bb LJ（这包为准）：按 UTG+1 映射，已接入 Raise + Jam；边界更多，但仍不是随便推。",
-      open: ["AA", "A4s", "A5s", "A6s", "A7s", "A8s", "A9s", "A9o", "ATs", "ATo", "AJs", "AJo", "AQs", "AQo", "AKs", "AKo", "66", "77", "88", "T8s", "Q8s", "K8s", "99", "T9s", "J9s", "Q9s", "K9s", "TT", "JTs", "QTs", "KTs", "JJ", "QJs", "KJs", "KJo", "QQ", "KQs", "KQo", "KK"],
-      jam: [],
-      mix: ["55", "98s", "A3s", "J8s", "K7s", "KTo", "QJo"]
-    },
-    "UTG+2": {
-      summary: "20bb UTG+2（这包为准）：过渡位，开始出现少量 jam 候选。",
-      open: ["AA", "A3s", "A4s", "A5s", "A6s", "A7s", "A8s", "A9s", "A9o", "ATs", "ATo", "AJs", "AJo", "AQs", "AQo", "AKs", "AKo", "55", "66", "77", "K7s", "88", "98s", "T8s", "J8s", "Q8s", "K8s", "99", "T9s", "J9s", "Q9s", "K9s", "TT", "JTs", "QTs", "KTs", "KTo", "JJ", "QJs", "QJo", "KJs", "KJo", "QQ", "KQs", "KQo", "KK"],
-      jam: [],
-      mix: ["87s", "A8o", "JTo", "K6s", "QTo"]
-    },
-    HJ: {
-      summary: "20bb HJ（这包为准）：已按真实包接入 Raise + Jam，不再猜。",
-      open: ["AA", "A2s", "A3s", "A4s", "A5s", "A6s", "A7s", "A7o", "A8s", "A8o", "A9s", "A9o", "ATs", "ATo", "AJs", "AJo", "AQs", "AQo", "AKs", "AKo", "55", "K5s", "66", "K6s", "77", "97s", "Q7s", "K7s", "88", "98s", "T8s", "J8s", "Q8s", "K8s", "99", "T9s", "J9s", "Q9s", "K9s", "TT", "JTs", "JTo", "QTs", "QTo", "KTs", "KTo", "JJ", "QJs", "QJo", "KJs", "KJo", "QQ", "KQs", "KQo", "KK"],
-      jam: [],
-      mix: ["87s", "Q6s"]
-    },
-    CO: {
-      summary: "20bb CO（这包为准）：比 HJ 更宽，并接入了 CO 直接 jam 线。",
-      open: ["AA", "A3s", "A4s", "A5s", "A5o", "A6s", "A6o", "A7s", "A7o", "A8s", "A8o", "A9s", "A9o", "ATs", "ATo", "AJs", "AJo", "AQs", "AQo", "AKs", "AKo", "44", "55", "K5s", "66", "Q6s", "K6s", "77", "87s", "97s", "T7s", "J7s", "Q7s", "K7s", "88", "98s", "T8s", "J8s", "Q8s", "K8s", "99", "T9s", "J9s", "Q9s", "K9s", "K9o", "TT", "JTs", "JTo", "QTs", "QTo", "KTs", "KTo", "JJ", "QJs", "QJo", "KJs", "KJo", "QQ", "KQs", "KQo", "KK"],
-      jam: [],
-      mix: ["A2s", "J9o", "K4s", "Q5s", "Q9o", "T9o"]
-    },
-    BTN: {
-      summary: "20bb BTN（这包为准）：按钮位已重新接回 Raise + Jam，两条线都会训练。",
-      open: ["AA", "A4o", "A5o", "A6s", "A6o", "A9s", "A9o", "ATo", "AJo", "AQs", "AQo", "AKs", "AKo", "55", "Q5s", "K5s", "66", "86s", "J6s", "Q6s", "K6s", "77", "97s", "T7s", "J7s", "Q7s", "88", "98s", "T8s", "J8s", "K8o", "99", "T9o", "J9o", "Q9o", "K9o", "TT", "JTo", "QTo", "KTo", "JJ", "QJs", "KJs", "QQ", "KQs", "KK"],
-      jam: ["A2s", "A3s", "A4s", "A8o", "22", "33", "44", "QTs"],
-      mix: ["75s", "76s", "87s", "96s", "A2o", "A3o", "A5s", "A7o", "A7s", "A8s", "AJs", "ATs", "J5s", "J8o", "J9s", "JTs", "K3s", "K4s", "K7o", "K7s", "K8s", "K9s", "KJo", "KQo", "KTs", "Q4s", "Q8o", "Q8s", "Q9s", "QJo", "T6s", "T8o", "T9s"]
-    },
-    SB: {
-      summary: "20bb SB（精修版）：按你提供的 SB 三份文件优先拆成 Call / Raise / Jam / Fold。显示优先级：纯动作 > 双动作 > 多动作边界。",
-      open: ["A7s", "AA", "AKs", "KK", "QQ", "T9s"],
-      call: ["43s", "53s", "54s", "55", "64o", "64s", "65s", "72s", "75o", "75s", "85o", "86s", "95o", "96s", "A2s", "A3s", "A4s", "A5s", "AQo", "J2o", "J3o", "J4o", "J4s", "J5s", "J6o", "J6s", "J7s", "J8s", "J9s", "K2o", "K2s", "K3o", "K3s", "K4s", "K5s", "K6s", "K7s", "K8s", "K9s", "Q2o", "Q2s", "Q3o", "Q3s", "Q4s", "Q5s", "Q6s", "Q7s", "Q8s", "Q9s", "QJs", "QTs", "T3o", "T4o", "T5o", "T6s"],
-      jam: ["22", "33", "44", "87s", "98s", "A5o", "A6o", "A7o", "A8o", "A9o"],
-      mix: ["32s", "42s", "52s", "54o", "62s", "63s", "65o", "66", "73s", "74o", "74s", "76o", "76s", "77", "82s", "83s", "84s", "85s", "86o", "87o", "88", "92s", "93s", "94s", "95s", "96o", "97o", "97s", "98o", "99", "A2o", "A3o", "A4o", "A6s", "A8s", "A9s", "AJo", "AJs", "AKo", "AQs", "ATo", "ATs", "J2s", "J3s", "J5o", "J7o", "J8o", "J9o", "JJ", "JTo", "JTs", "K4o", "K5o", "K6o", "K7o", "K8o", "K9o", "KJo", "KJs", "KQo", "KQs", "KTo", "KTs", "Q4o", "Q5o", "Q6o", "Q7o", "Q8o", "Q9o", "QJo", "QTo", "T2o", "T2s", "T3s", "T4s", "T5s", "T6o", "T7o", "T7s", "T8o", "T8s", "T9o", "TT"]
-    },
+  "UTG": {
+    "summary": "20bb UTG（精确包版）：按你提供的范围文件生成。",
+    "raise": [
+      "AA",
+      "A4s",
+      "A5s",
+      "A6s",
+      "A7s",
+      "A8s",
+      "A9s",
+      "ATs",
+      "ATo",
+      "AJs",
+      "AJo",
+      "AQs",
+      "AQo",
+      "AKs",
+      "AKo",
+      "66",
+      "77",
+      "88",
+      "T8s",
+      "K8s",
+      "99",
+      "T9s",
+      "J9s",
+      "Q9s",
+      "K9s",
+      "TT",
+      "JTs",
+      "QTs",
+      "KTs",
+      "JJ",
+      "QJs",
+      "KJs",
+      "KJo",
+      "QQ",
+      "KQs",
+      "KQo",
+      "KK"
+    ],
+    "call": [],
+    "jam": [],
+    "mix": [
+      "Q8s",
+      "QJo",
+      "KTo",
+      "A9o"
+    ]
   },
+  "LJ": {
+    "summary": "20bb LJ（精确包版）：按 UTG+1 文件生成。",
+    "raise": [
+      "AA",
+      "A4s",
+      "A5s",
+      "A6s",
+      "A7s",
+      "A8s",
+      "A9s",
+      "A9o",
+      "ATs",
+      "ATo",
+      "AJs",
+      "AJo",
+      "AQs",
+      "AQo",
+      "AKs",
+      "AKo",
+      "66",
+      "77",
+      "88",
+      "T8s",
+      "Q8s",
+      "K8s",
+      "99",
+      "T9s",
+      "J9s",
+      "Q9s",
+      "K9s",
+      "TT",
+      "JTs",
+      "QTs",
+      "KTs",
+      "JJ",
+      "QJs",
+      "KJs",
+      "KJo",
+      "QQ",
+      "KQs",
+      "KQo",
+      "KK"
+    ],
+    "call": [],
+    "jam": [],
+    "mix": [
+      "A3s",
+      "K7s",
+      "QJo",
+      "J8s",
+      "KTo",
+      "98s",
+      "55"
+    ]
+  },
+  "UTG+2": {
+    "summary": "20bb UTG+2（精确包版）：按 UTG+2 文件生成。",
+    "raise": [
+      "AA",
+      "A3s",
+      "A4s",
+      "A5s",
+      "A6s",
+      "A7s",
+      "A8s",
+      "A9s",
+      "A9o",
+      "ATs",
+      "ATo",
+      "AJs",
+      "AJo",
+      "AQs",
+      "AQo",
+      "AKs",
+      "AKo",
+      "55",
+      "66",
+      "77",
+      "K7s",
+      "88",
+      "98s",
+      "T8s",
+      "J8s",
+      "Q8s",
+      "K8s",
+      "99",
+      "T9s",
+      "J9s",
+      "Q9s",
+      "K9s",
+      "TT",
+      "JTs",
+      "QTs",
+      "KTs",
+      "KTo",
+      "JJ",
+      "QJs",
+      "QJo",
+      "KJs",
+      "KJo",
+      "QQ",
+      "KQs",
+      "KQo",
+      "KK"
+    ],
+    "call": [],
+    "jam": [],
+    "mix": [
+      "K6s",
+      "QTo",
+      "JTo",
+      "A8o",
+      "87s"
+    ]
+  },
+  "HJ": {
+    "summary": "20bb HJ（精确包版）：以后以这包为准。",
+    "raise": [
+      "AA",
+      "A2s",
+      "A3s",
+      "A4s",
+      "A5s",
+      "A6s",
+      "A7s",
+      "A7o",
+      "A8s",
+      "A8o",
+      "A9s",
+      "A9o",
+      "ATs",
+      "ATo",
+      "AJs",
+      "AJo",
+      "AQs",
+      "AQo",
+      "AKs",
+      "AKo",
+      "55",
+      "K5s",
+      "66",
+      "K6s",
+      "77",
+      "97s",
+      "Q7s",
+      "K7s",
+      "88",
+      "98s",
+      "T8s",
+      "J8s",
+      "Q8s",
+      "K8s",
+      "99",
+      "T9s",
+      "J9s",
+      "Q9s",
+      "K9s",
+      "TT",
+      "JTs",
+      "JTo",
+      "QTs",
+      "QTo",
+      "KTs",
+      "KTo",
+      "JJ",
+      "QJs",
+      "QJo",
+      "KJs",
+      "KJo",
+      "QQ",
+      "KQs",
+      "KQo",
+      "KK"
+    ],
+    "call": [],
+    "jam": [],
+    "mix": [
+      "Q6s",
+      "87s"
+    ]
+  },
+  "CO": {
+    "summary": "20bb CO（精确包版）：以后以这包为准。",
+    "raise": [
+      "AA",
+      "A3s",
+      "A4s",
+      "A5s",
+      "A5o",
+      "A6s",
+      "A6o",
+      "A7s",
+      "A7o",
+      "A8s",
+      "A8o",
+      "A9s",
+      "A9o",
+      "ATs",
+      "ATo",
+      "AJs",
+      "AJo",
+      "AQs",
+      "AQo",
+      "AKs",
+      "AKo",
+      "44",
+      "55",
+      "K5s",
+      "66",
+      "Q6s",
+      "K6s",
+      "77",
+      "87s",
+      "97s",
+      "T7s",
+      "J7s",
+      "Q7s",
+      "K7s",
+      "88",
+      "98s",
+      "T8s",
+      "J8s",
+      "Q8s",
+      "K8s",
+      "99",
+      "T9s",
+      "J9s",
+      "Q9s",
+      "K9s",
+      "K9o",
+      "TT",
+      "JTs",
+      "JTo",
+      "QTs",
+      "QTo",
+      "KTs",
+      "KTo",
+      "JJ",
+      "QJs",
+      "QJo",
+      "KJs",
+      "KJo",
+      "QQ",
+      "KQs",
+      "KQo",
+      "KK"
+    ],
+    "call": [],
+    "jam": [],
+    "mix": [
+      "A2s",
+      "K4s",
+      "Q5s",
+      "Q9o",
+      "J9o",
+      "T9o"
+    ]
+  },
+  "BTN": {
+    "summary": "20bb BTN（精确包版）：已包含 Raise / Call / Jam / Fold。",
+    "raise": [
+      "AA",
+      "A4o",
+      "A5o",
+      "A6s",
+      "A6o",
+      "A9s",
+      "A9o",
+      "ATo",
+      "AJo",
+      "AQs",
+      "AQo",
+      "AKs",
+      "AKo",
+      "55",
+      "Q5s",
+      "K5s",
+      "66",
+      "86s",
+      "J6s",
+      "Q6s",
+      "K6s",
+      "77",
+      "97s",
+      "T7s",
+      "J7s",
+      "Q7s",
+      "88",
+      "98s",
+      "T8s",
+      "J8s",
+      "K8o",
+      "99",
+      "T9o",
+      "J9o",
+      "Q9o",
+      "K9o",
+      "TT",
+      "JTo",
+      "QTo",
+      "KTo",
+      "JJ",
+      "QJs",
+      "KJs",
+      "QQ",
+      "KQs",
+      "KK"
+    ],
+    "call": [],
+    "jam": [
+      "A2s",
+      "A3s",
+      "A4s",
+      "A8o",
+      "22",
+      "33",
+      "44",
+      "QTs"
+    ],
+    "mix": [
+      "AJs",
+      "ATs",
+      "A8s",
+      "A7s",
+      "A5s",
+      "KTs",
+      "K9s",
+      "K8s",
+      "K7s",
+      "K4s",
+      "K3s",
+      "KQo",
+      "Q9s",
+      "Q8s",
+      "Q4s",
+      "KJo",
+      "QJo",
+      "JTs",
+      "J9s",
+      "J5s",
+      "KTo",
+      "T9s",
+      "T6s",
+      "96s",
+      "Q8o",
+      "J8o",
+      "T8o",
+      "87s",
+      "A7o",
+      "K7o",
+      "76s",
+      "75s",
+      "65s",
+      "A3o",
+      "A2o"
+    ]
+  },
+  "SB": {
+    "summary": "20bb SB（精确包版）：已包含 Call / Raise / Jam / Fold。",
+    "raise": [
+      "AA",
+      "A7s",
+      "AKs",
+      "T9s",
+      "QQ",
+      "KK"
+    ],
+    "call": [
+      "A2s",
+      "A3s",
+      "A4s",
+      "A5s",
+      "AQo",
+      "72s",
+      "J2o",
+      "Q2s",
+      "Q2o",
+      "K2s",
+      "K2o",
+      "43s",
+      "53s",
+      "T3o",
+      "J3o",
+      "Q3s",
+      "Q3o",
+      "K3s",
+      "K3o",
+      "54s",
+      "64s",
+      "64o",
+      "T4o",
+      "J4s",
+      "J4o",
+      "Q4s",
+      "K4s",
+      "55",
+      "65s",
+      "75s",
+      "75o",
+      "85o",
+      "95o",
+      "T5o",
+      "J5s",
+      "Q5s",
+      "K5s",
+      "86s",
+      "96s",
+      "T6s",
+      "J6s",
+      "J6o",
+      "Q6s",
+      "K6s",
+      "J7s",
+      "Q7s",
+      "K7s",
+      "J8s",
+      "Q8s",
+      "K8s",
+      "J9s",
+      "Q9s",
+      "K9s",
+      "QTs",
+      "QJs"
+    ],
+    "jam": [
+      "A5o",
+      "A6o",
+      "A7o",
+      "A8o",
+      "A9o",
+      "22",
+      "33",
+      "44",
+      "87s",
+      "98s"
+    ],
+    "mix": [
+      "AQs",
+      "AJs",
+      "ATs",
+      "A9s",
+      "A8s",
+      "A6s",
+      "AKo",
+      "KQs",
+      "KJs",
+      "KTs",
+      "KQo",
+      "AJo",
+      "KJo",
+      "QJo",
+      "JJ",
+      "JTs",
+      "J3s",
+      "J2s",
+      "ATo",
+      "KTo",
+      "QTo",
+      "JTo",
+      "TT",
+      "T8s",
+      "T7s",
+      "T5s",
+      "T4s",
+      "T3s",
+      "T2s",
+      "K9o",
+      "Q9o",
+      "J9o",
+      "T9o",
+      "99",
+      "97s",
+      "95s",
+      "94s",
+      "93s",
+      "92s",
+      "K8o",
+      "Q8o",
+      "J8o",
+      "T8o",
+      "98o",
+      "88",
+      "85s",
+      "84s",
+      "83s",
+      "82s",
+      "K7o",
+      "Q7o",
+      "J7o",
+      "T7o",
+      "97o",
+      "87o",
+      "77",
+      "76s",
+      "74s",
+      "73s",
+      "K6o",
+      "Q6o",
+      "J6o",
+      "T6o",
+      "96o",
+      "86o",
+      "76o",
+      "66",
+      "63s",
+      "62s",
+      "K5o",
+      "Q5o",
+      "J5o",
+      "65o",
+      "52s",
+      "A4o",
+      "K4o",
+      "Q4o",
+      "74o",
+      "54o",
+      "42s",
+      "A3o",
+      "32s",
+      "A2o",
+      "K2o",
+      "T2o"
+    ]
+  }
+},
   '15bb': {
-    UTG: {
-      summary: '15bb 前位：别装，明显价值牌再动。',
-      open: ['77','88','99','TT','JJ','QQ','KK','AA','AJs','AQs','AKs','AQo','AKo','KQs'],
-      mix: ['66','ATs','AJo']
-    },
-    HJ: {
-      summary: '15bb HJ：比前位宽一点，但仍偏 blocker 和高张。',
-      open: ['55','66','77','88','99','TT','JJ','QQ','KK','AA','A5s','A6s','A7s','A8s','A9s','ATs','AJs','AQs','AKs','ATo','AJo','AQo','AKo','KTs','KJs','KQs','QJs'],
-      mix: ['44','A4s','QTs','JTs']
-    },
-    CO: {
-      summary: '15bb CO：开始能打 blocker 和高张，但别再迷恋小花连子。',
-      open: ['55','66','77','88','99','TT','JJ','QQ','KK','AA','A5s','A6s','A7s','A8s','A9s','ATs','AJs','AQs','AKs','ATo','AJo','AQo','AKo','KTs','KJs','KQs','KQo','QJs'],
-      mix: ['44','A2s','A3s','A4s','QTs','JTs']
-    },
-    BTN: {
-      summary: 'BTN 15bb：宽，但更像短筹攻击，不是深筹玩花样。',
-      open: ['22','33','44','55','66','77','88','99','TT','JJ','QQ','KK','AA','A2s','A3s','A4s','A5s','A6s','A7s','A8s','A9s','ATs','AJs','AQs','AKs','A2o','A3o','A4o','A5o','A6o','A7o','A8o','A9o','ATo','AJo','AQo','AKo','K7s','K8s','K9s','KTs','KJs','KQs','K9o','KTo','KJo','KQo','Q8s','Q9s','QTs','QJs','QTo','J8s','J9s','JTs','JTo','T8s','T9s','98s','87s'],
-      mix: ['K5s','K6s','Q7s','J7s','T7s','76s','65s']
-    },
-    SB: {
-      summary: '15bb SB：少搞 raise/fold，多用 limp 和直接 shove；查看器先显示可主动进攻的主段。',
-      open: ['66','77','88','99','TT','JJ','QQ','KK','AA','A8s','A9s','ATs','AJs','AQs','AKs','ATo','AJo','AQo','AKo','KJs','KQs','A2s','A3s','A4s','A5s'],
-      mix: ['55','A6s','A7s','QJs']
-    }
+    'UTG': { summary:'15bb 前位：别装，明显价值牌再动。', raise:['77','88','99','TT','JJ','QQ','KK','AA','AJs','AQs','AKs','AQo','AKo','KQs'], call:[], jam:[], mix:['66','ATs','AJo'] },
+    'HJ': { summary:'15bb HJ：比前位宽一点，但仍偏 blocker 和高张。', raise:['55','66','77','88','99','TT','JJ','QQ','KK','AA','A5s','A6s','A7s','A8s','A9s','ATs','AJs','AQs','AKs','ATo','AJo','AQo','AKo','KTs','KJs','KQs','QJs'], call:[], jam:[], mix:['44','A4s','QTs','JTs'] },
+    'CO': { summary:'15bb CO：开始能打 blocker 和高张，但别再迷恋小花连子。', raise:['55','66','77','88','99','TT','JJ','QQ','KK','AA','A5s','A6s','A7s','A8s','A9s','ATs','AJs','AQs','AKs','ATo','AJo','AQo','AKo','KTs','KJs','KQs','KQo','QJs'], call:[], jam:[], mix:['44','A2s','A3s','A4s','QTs','JTs'] },
+    'BTN': { summary:'15bb BTN：宽，但更像短筹攻击。', raise:['22','33','44','55','66','77','88','99','TT','JJ','QQ','KK','AA','A2s','A3s','A4s','A5s','A6s','A7s','A8s','A9s','ATs','AJs','AQs','AKs','A2o','A3o','A4o','A5o','A6o','A7o','A8o','A9o','ATo','AJo','AQo','AKo','K7s','K8s','K9s','KTs','KJs','KQs','K9o','KTo','KJo','KQo','Q8s','Q9s','QTs','QJs','QTo','J8s','J9s','JTs','JTo','T8s','T9s','98s','87s'], call:[], jam:[], mix:['K5s','K6s','Q7s','J7s','T7s','76s','65s'] },
+    'SB': { summary:'15bb SB：少搞 raise/fold，多用 limp 和直接 shove。', raise:['66','77','88','99','TT','JJ','QQ','KK','AA','A8s','A9s','ATs','AJs','AQs','AKs','ATo','AJo','AQo','AKo','KJs','KQs','A2s','A3s','A4s','A5s'], call:[], jam:[], mix:['55','A6s','A7s','QJs'] }
   }
 };
 
 const spots = [
-  { id:'20bb_btn_open_a9s', module:'20bb Open', stage:'Preflop', heroPosition:'BTN', effectiveBb:'20bb', actionBefore:'Folded to BTN', heroHand:'A9s', context:'中期常规局面', tags:['20bb','BTN','open'], options:['Fold','Raise','Jam','Call'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'20bb BTN 仍应保留小开体系，A9s 属于标准开池，不必直接 jam。' },
-  { id:'20bb_btn_open_a2o', module:'20bb Open', stage:'Preflop', heroPosition:'BTN', effectiveBb:'20bb', actionBefore:'Folded to BTN', heroHand:'A2o', context:'中期常规局面', tags:['20bb','BTN','open','public-calibrated'], options:['Fold','Raise','Jam','Call'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'公开资料校验版中，BTN 的 A2o 已进入可开范围，按钮位不能把这类小 Axo 弃过头。' },
-  { id:'20bb_btn_open_k7o', module:'20bb Open', stage:'Preflop', heroPosition:'BTN', effectiveBb:'20bb', actionBefore:'Folded to BTN', heroHand:'K7o', context:'中期常规局面', tags:['20bb','BTN','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Fold', acceptableActions:['Fold'], explanation:'即使在 BTN，K7o 仍更接近边界外，不要把按钮位自动理解成任何 Kx offsuit 都能开。' },
-  { id:'20bb_btn_open_q8o', module:'20bb Open', stage:'Preflop', heroPosition:'BTN', effectiveBb:'20bb', actionBefore:'Folded to BTN', heroHand:'Q8o', context:'中期常规局面', tags:['20bb','BTN','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'Q8o 在按钮位已可作为结构化宽开的一部分，但它是后位宽开，不代表手本身很强。' },
-  { id:'20bb_btn_open_64s', module:'20bb Open', stage:'Preflop', heroPosition:'BTN', effectiveBb:'20bb', actionBefore:'Folded to BTN', heroHand:'64s', context:'中期常规局面', tags:['20bb','BTN','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'64s 位于按钮位极边界，公开资料交叉后更适合按边界混合处理，而不是稳定宽开。' },
-  { id:'20bb_co_open_66', module:'20bb Open', stage:'Preflop', heroPosition:'CO', effectiveBb:'20bb', actionBefore:'Folded to CO', heroHand:'66', context:'常规中期', tags:['20bb','CO','open'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'20bb CO 的 66 仍是标准开池手，不必把所有中等对子都粗暴 jam。' },
-  { id:'20bb_co_open_a5o', module:'20bb Open', stage:'Preflop', heroPosition:'CO', effectiveBb:'20bb', actionBefore:'Folded to CO', heroHand:'A5o', context:'常规中期', tags:['20bb','CO','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'A5o 在 CO 已进入较稳定开池段，是理解 CO 比 HJ 更宽的关键边界手。' },
-  { id:'20bb_co_open_k8s', module:'20bb Open', stage:'Preflop', heroPosition:'CO', effectiveBb:'20bb', actionBefore:'Folded to CO', heroHand:'K8s', context:'常规中期', tags:['20bb','CO','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'K8s 在 CO 属于边界牌，公开资料更倾向把它放在混合区，而不是稳定开池。' },
-  { id:'20bb_co_open_q9o', module:'20bb Open', stage:'Preflop', heroPosition:'CO', effectiveBb:'20bb', actionBefore:'Folded to CO', heroHand:'Q9o', context:'常规中期', tags:['20bb','CO','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'Q9o 是 CO 的典型边界 offsuit，适合拿来训练你对“能不能放宽到这类牌”的感觉。' },
-  { id:'20bb_co_open_t8s', module:'20bb Open', stage:'Preflop', heroPosition:'CO', effectiveBb:'20bb', actionBefore:'Folded to CO', heroHand:'T8s', context:'常规中期', tags:['20bb','CO','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'T8s 在 CO 接近边界混合；后位能放一点，但别因为 suited + 连子就全变稳定开。' },
-  { id:'20bb_hj_open_kto', module:'20bb Open', stage:'Preflop', heroPosition:'HJ', effectiveBb:'20bb', actionBefore:'Folded to HJ', heroHand:'KTo', context:'中期 9人桌', tags:['20bb','HJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'公开资料交叉校验后，20bb HJ 的 KTo 应纳入开池骨架；不要把它误当成纯 fold。' },
-  { id:'20bb_hj_open_a7o', module:'20bb Open', stage:'Preflop', heroPosition:'HJ', effectiveBb:'20bb', actionBefore:'Folded to HJ', heroHand:'A7o', context:'中期 9人桌', tags:['20bb','HJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Fold', acceptableActions:['Fold'], explanation:'公开资料校验版里，20bb HJ 的低 Axo 仍偏紧，A7o 先按 fold 训练，避免把低 Axo 开得过松。' },
-  { id:'20bb_hj_open_87s', module:'20bb Open', stage:'Preflop', heroPosition:'HJ', effectiveBb:'20bb', actionBefore:'Folded to HJ', heroHand:'87s', context:'中期 9人桌', tags:['20bb','HJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'87s 在 HJ 是典型边界牌，公开资料交叉后更适合按混合训练，而不是一刀切。' },
-  { id:'20bb_hj_open_qts', module:'20bb Open', stage:'Preflop', heroPosition:'HJ', effectiveBb:'20bb', actionBefore:'Folded to HJ', heroHand:'QTs', context:'中期 9人桌', tags:['20bb','HJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'QTs 在 HJ 属于靠近骨架边缘的高张同花牌，训练时别把它误当成稳定必开。' },
-  { id:'20bb_lj_open_a9o', module:'20bb Open', stage:'Preflop', heroPosition:'LJ', effectiveBb:'20bb', actionBefore:'Folded to LJ', heroHand:'A9o', context:'中期 8人桌', tags:['20bb','LJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'LJ 比 UTG 稍宽，A9o 已可进入开池骨架，是理解 LJ 与 UTG 差异的关键手。' },
-  { id:'20bb_lj_open_kto', module:'20bb Open', stage:'Preflop', heroPosition:'LJ', effectiveBb:'20bb', actionBefore:'Folded to LJ', heroHand:'KTo', context:'中期 8人桌', tags:['20bb','LJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'KTo 在 LJ 接近边界混合，说明 LJ 虽比 UTG 宽，但仍不能把中等 broadway 开得太随意。' },
-  { id:'20bb_lj_open_qjo', module:'20bb Open', stage:'Preflop', heroPosition:'LJ', effectiveBb:'20bb', actionBefore:'Folded to LJ', heroHand:'QJo', context:'中期 8人桌', tags:['20bb','LJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'QJo 在 LJ 仍是边界感很强的牌，用来训练“中前位 broadway 不能想当然全开”正合适。' },
-  { id:'20bb_lj_open_98s', module:'20bb Open', stage:'Preflop', heroPosition:'LJ', effectiveBb:'20bb', actionBefore:'Folded to LJ', heroHand:'98s', context:'中期 8人桌', tags:['20bb','LJ','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'98s 在 LJ 也更像边界混合，不要把所有 suited connector 都无脑放进中前位。' },
-  { id:'20bb_utg_open_a8s', module:'20bb Open', stage:'Preflop', heroPosition:'UTG', effectiveBb:'20bb', actionBefore:'Folded to UTG', heroHand:'A8s', context:'中期 8人桌', tags:['20bb','UTG','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'公开资料校验版中，20bb UTG 的 A8s 已可进入开池骨架，别把所有中小 Axs 都砍掉。' },
-  { id:'20bb_utg_open_55', module:'20bb Open', stage:'Preflop', heroPosition:'UTG', effectiveBb:'20bb', actionBefore:'Folded to UTG', heroHand:'55', context:'中期 8人桌', tags:['20bb','UTG','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'55 在 UTG 更适合按边界混合处理，这手很适合训练你对“前位小对子不是自动开”的感觉。' },
-  { id:'20bb_utg_open_kjs', module:'20bb Open', stage:'Preflop', heroPosition:'UTG', effectiveBb:'20bb', actionBefore:'Folded to UTG', heroHand:'KJs', context:'中期 8人桌', tags:['20bb','UTG','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Fold'], explanation:'KJs 在 20bb UTG 公开资料里更像混合区，不能简单当成稳定 open。' },
-  { id:'20bb_utg_open_76s', module:'20bb Open', stage:'Preflop', heroPosition:'UTG', effectiveBb:'20bb', actionBefore:'Folded to UTG', heroHand:'76s', context:'中期 8人桌', tags:['20bb','UTG','open','public-calibrated'], options:['Fold','Raise','Jam'], recommendedAction:'Fold', acceptableActions:['Fold'], explanation:'76s 是典型前位别高估的牌，20bb UTG 先按 fold 建立纪律最重要。' },
-  { id:'20bb_sb_open_a5s', module:'20bb Open', stage:'Preflop', heroPosition:'SB', effectiveBb:'20bb', actionBefore:'Folded to SB', heroHand:'A5s', context:'盲对盲前的 SB 首动', tags:['20bb','SB','open','public-calibrated'], options:['Fold','Raise','Call','Jam'], recommendedAction:'Raise', acceptableActions:['Raise','Call'], explanation:'SB 理论常有 limp 体系，但 A5s 属于可主动进攻主段；训练器先接受 Raise / Call 双答案，避免把 SB 简化错。' },
-  { id:'20bb_sb_open_66', module:'20bb Open', stage:'Preflop', heroPosition:'SB', effectiveBb:'20bb', actionBefore:'Folded to SB', heroHand:'66', context:'盲对盲前的 SB 首动', tags:['20bb','SB','open','public-calibrated'], options:['Fold','Raise','Call','Jam'], recommendedAction:'Raise', acceptableActions:['Raise','Call'], explanation:'66 在 SB 属于可主动进攻的主段，但 SB 本身并非纯 RFI 逻辑，这里允许 Raise / Call 都算可接受。' },
-  { id:'20bb_sb_open_a7s', module:'20bb Open', stage:'Preflop', heroPosition:'SB', effectiveBb:'20bb', actionBefore:'Folded to SB', heroHand:'A7s', context:'盲对盲前的 SB 首动', tags:['20bb','SB','open','public-calibrated'], options:['Fold','Raise','Call','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Call','Fold'], explanation:'A7s 在 SB 更像体系边界，尤其因为 SB 理论含 limp。把它当成纯 raise 或纯 fold 都会过于僵硬。' },
-  { id:'20bb_sb_open_qts', module:'20bb Open', stage:'Preflop', heroPosition:'SB', effectiveBb:'20bb', actionBefore:'Folded to SB', heroHand:'QTs', context:'盲对盲前的 SB 首动', tags:['20bb','SB','open','public-calibrated'], options:['Fold','Raise','Call','Jam'], recommendedAction:'Mix', acceptableActions:['Raise','Call','Fold'], explanation:'QTs 在 SB 仍带有很强体系性，公开资料交叉后更适合作为边界混合题来练，而不是做成死答案。' },
-  {'id': '20bb_exact_utg_a9o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG', 'heroHand': 'A9o', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'UTG', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，UTG 的 A9o 频率约为 0.476；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_utg_q8s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG', 'heroHand': 'Q8s', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'UTG', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，UTG 的 Q8s 频率约为 0.550；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_utg_kto', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG', 'heroHand': 'KTo', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'UTG', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，UTG 的 KTo 频率约为 0.158；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_utg_qjo', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG', 'heroHand': 'QJo', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'UTG', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，UTG 的 QJo 频率约为 0.228；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_utg_76s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG', 'heroHand': '76s', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'UTG', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Fold', 'acceptableActions': ['Fold'], 'explanation': '按你提供的 20bb 包，UTG 的 76s 频率约为 0.000；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_lj_a3s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'LJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to LJ', 'heroHand': 'A3s', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'LJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，LJ 的 A3s 频率约为 0.346；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_lj_55', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'LJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to LJ', 'heroHand': '55', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'LJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，LJ 的 55 频率约为 0.118；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_lj_k7s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'LJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to LJ', 'heroHand': 'K7s', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'LJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，LJ 的 K7s 频率约为 0.552；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_lj_98s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'LJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to LJ', 'heroHand': '98s', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'LJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，LJ 的 98s 频率约为 0.494；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_lj_qjo', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'LJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to LJ', 'heroHand': 'QJo', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'LJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，LJ 的 QJo 频率约为 0.706；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_hj_a7o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'HJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to HJ', 'heroHand': 'A7o', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'HJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，HJ 的 A7o 频率约为 0.910；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_hj_q6s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'HJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to HJ', 'heroHand': 'Q6s', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'HJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，HJ 的 Q6s 频率约为 0.352；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_hj_87s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'HJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to HJ', 'heroHand': '87s', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'HJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，HJ 的 87s 频率约为 0.580；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_hj_kto', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'HJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to HJ', 'heroHand': 'KTo', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'HJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，HJ 的 KTo 频率约为 0.986；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_hj_qto', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'HJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to HJ', 'heroHand': 'QTo', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'HJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，HJ 的 QTo 频率约为 0.992；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_co_a2s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'CO', 'effectiveBb': '20bb', 'actionBefore': 'Folded to CO', 'heroHand': 'A2s', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'CO', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，CO 的 A2s 频率约为 0.894；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_co_a5o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'CO', 'effectiveBb': '20bb', 'actionBefore': 'Folded to CO', 'heroHand': 'A5o', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'CO', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，CO 的 A5o 频率约为 0.998；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_co_q9o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'CO', 'effectiveBb': '20bb', 'actionBefore': 'Folded to CO', 'heroHand': 'Q9o', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'CO', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，CO 的 Q9o 频率约为 0.630；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_co_k4s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'CO', 'effectiveBb': '20bb', 'actionBefore': 'Folded to CO', 'heroHand': 'K4s', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'CO', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，CO 的 K4s 频率约为 0.410；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_co_j9o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'CO', 'effectiveBb': '20bb', 'actionBefore': 'Folded to CO', 'heroHand': 'J9o', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'CO', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，CO 的 J9o 频率约为 0.456；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_btn_a2o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'A2o', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，BTN 的 A2o 频率约为 0.602；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_btn_a4o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'A4o', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，BTN 的 A4o 频率约为 0.916；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_btn_k8o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'K8o', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，BTN 的 K8o 频率约为 0.942；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_btn_q8o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'Q8o', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，BTN 的 Q8o 频率约为 0.472；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_btn_jts', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'JTs', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，BTN 的 JTs 频率约为 0.488；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_btn_kqo', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'KQo', 'context': '20bb-mtt-min_pioranges 校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，BTN 的 KQo 频率约为 0.774；这题以后直接按这包训练，不再按公开资料猜。'},
-  {'id': '20bb_exact_sb_a2o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'SB', 'effectiveBb': '20bb', 'actionBefore': 'Folded to SB', 'heroHand': 'A2o', 'context': '20bb-mtt-min_pioranges SB 精修版', 'tags': ['20bb', 'SB', 'exact-pack'], 'options': ['Fold', 'Call', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Call', 'Raise', 'Fold'], 'explanation': '按 SB 三份文件：A2o 的 Raise 0.000 / Call 0.456 / Jam 0.436。当前优先按 Call/Fold 边界理解，保留少量其他动作空间。'},
-  {'id': '20bb_exact_sb_a7s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'SB', 'effectiveBb': '20bb', 'actionBefore': 'Folded to SB', 'heroHand': 'A7s', 'context': '20bb-mtt-min_pioranges SB 精修版', 'tags': ['20bb', 'SB', 'exact-pack'], 'options': ['Fold', 'Call', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按 SB 三份文件：A7s 的 Raise 0.952 / Call 0.048 / Jam 0.000。当前应优先理解为纯 Raise。'},
-  {'id': '20bb_exact_sb_66', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'SB', 'effectiveBb': '20bb', 'actionBefore': 'Folded to SB', 'heroHand': '66', 'context': '20bb-mtt-min_pioranges SB 精修版', 'tags': ['20bb', 'SB', 'exact-pack'], 'options': ['Fold', 'Call', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Call', 'Raise', 'Fold'], 'explanation': '按 SB 三份文件：66 的 Raise 0.244 / Call 0.756 / Jam 0.000。它不是单一路线，当前更适合作为 Call/Raise/Fold 的边界牌训练。'},
-  {'id': '20bb_exact_sb_kjo', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'SB', 'effectiveBb': '20bb', 'actionBefore': 'Folded to SB', 'heroHand': 'KJo', 'context': '20bb-mtt-min_pioranges SB 精修版', 'tags': ['20bb', 'SB', 'exact-pack'], 'options': ['Fold', 'Call', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Call', 'Raise', 'Fold'], 'explanation': '按 SB 三份文件：KJo 的 Raise 0.524 / Call 0.468 / Jam 0.010。当前按多动作边界训练，不再瞎归成单一路线。'},
-  {'id': '20bb_exact_sb_q8o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'SB', 'effectiveBb': '20bb', 'actionBefore': 'Folded to SB', 'heroHand': 'Q8o', 'context': '20bb-mtt-min_pioranges SB 精修版', 'tags': ['20bb', 'SB', 'exact-pack'], 'options': ['Fold', 'Call', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Call', 'Raise', 'Fold'], 'explanation': '按 SB 三份文件：Q8o 的 Raise 0.500 / Call 0.500 / Jam 0.000。当前按边界多动作牌处理。'},
-  {'id': '20bb_exact_utg_a9o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG', 'heroHand': 'A9o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'UTG', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，UTG 的 A9o：Raise 频率 0.476 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_utg_kto', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG', 'heroHand': 'KTo', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'UTG', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，UTG 的 KTo：Raise 频率 0.158 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_utg_qjo', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG', 'heroHand': 'QJo', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'UTG', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，UTG 的 QJo：Raise 频率 0.228 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_utg_76s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG', 'heroHand': '76s', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'UTG', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Fold', 'acceptableActions': ['Fold'], 'explanation': '按你提供的 20bb 包，UTG 的 76s：Raise 频率 0.000 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_lj_a3s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'LJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to LJ', 'heroHand': 'A3s', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'LJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，LJ 的 A3s：Raise 频率 0.346 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_lj_55', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'LJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to LJ', 'heroHand': '55', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'LJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，LJ 的 55：Raise 频率 0.118 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_lj_kto', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'LJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to LJ', 'heroHand': 'KTo', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'LJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，LJ 的 KTo：Raise 频率 0.402 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_lj_qjo', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'LJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to LJ', 'heroHand': 'QJo', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'LJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，LJ 的 QJo：Raise 频率 0.706 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_utgp2_a8o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG+2', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG+2', 'heroHand': 'A8o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'UTG+2', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，UTG+2 的 A8o：Raise 频率 0.604 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_utgp2_qto', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG+2', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG+2', 'heroHand': 'QTo', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'UTG+2', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，UTG+2 的 QTo：Raise 频率 0.450 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_utgp2_87s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG+2', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG+2', 'heroHand': '87s', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'UTG+2', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，UTG+2 的 87s：Raise 频率 0.166 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_utgp2_kto', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'UTG+2', 'effectiveBb': '20bb', 'actionBefore': 'Folded to UTG+2', 'heroHand': 'KTo', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'UTG+2', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，UTG+2 的 KTo：Raise 频率 0.980 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_hj_a7o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'HJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to HJ', 'heroHand': 'A7o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'HJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，HJ 的 A7o：Raise 频率 0.910 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_hj_q6s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'HJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to HJ', 'heroHand': 'Q6s', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'HJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，HJ 的 Q6s：Raise 频率 0.352 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_hj_87s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'HJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to HJ', 'heroHand': '87s', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'HJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，HJ 的 87s：Raise 频率 0.580 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_hj_kto', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'HJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to HJ', 'heroHand': 'KTo', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'HJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，HJ 的 KTo：Raise 频率 0.986 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_hj_qto', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'HJ', 'effectiveBb': '20bb', 'actionBefore': 'Folded to HJ', 'heroHand': 'QTo', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'HJ', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，HJ 的 QTo：Raise 频率 0.992 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_co_a2s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'CO', 'effectiveBb': '20bb', 'actionBefore': 'Folded to CO', 'heroHand': 'A2s', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'CO', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，CO 的 A2s：Raise 频率 0.894 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_co_a5o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'CO', 'effectiveBb': '20bb', 'actionBefore': 'Folded to CO', 'heroHand': 'A5o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'CO', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，CO 的 A5o：Raise 频率 0.998 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_co_q9o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'CO', 'effectiveBb': '20bb', 'actionBefore': 'Folded to CO', 'heroHand': 'Q9o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'CO', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，CO 的 Q9o：Raise 频率 0.630 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_co_j9o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'CO', 'effectiveBb': '20bb', 'actionBefore': 'Folded to CO', 'heroHand': 'J9o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'CO', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，CO 的 J9o：Raise 频率 0.456 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_co_44', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'CO', 'effectiveBb': '20bb', 'actionBefore': 'Folded to CO', 'heroHand': '44', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'CO', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，CO 的 44：Raise 频率 0.972 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_btn_a2o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'A2o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，BTN 的 A2o：Raise 频率 0.602 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_btn_a4o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'A4o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，BTN 的 A4o：Raise 频率 0.916 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_btn_k8o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'K8o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，BTN 的 K8o：Raise 频率 0.942 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_btn_q8o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'Q8o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，BTN 的 Q8o：Raise 频率 0.472 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_btn_jts', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'JTs', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Jam', 'Fold'], 'explanation': '按你提供的 20bb 包，BTN 的 JTs：Raise 频率 0.488 / Jam 频率 0.496。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_btn_kqo', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'KQo', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Raise', 'Jam', 'Fold'], 'explanation': '按你提供的 20bb 包，BTN 的 KQo：Raise 频率 0.774 / Jam 频率 0.172。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_btn_22', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': '22', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Jam', 'acceptableActions': ['Jam'], 'explanation': '按你提供的 20bb 包，BTN 的 22：Raise 频率 0.000 / Jam 频率 1.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_btn_33', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': '33', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Jam', 'acceptableActions': ['Jam'], 'explanation': '按你提供的 20bb 包，BTN 的 33：Raise 频率 0.000 / Jam 频率 1.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_btn_44', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': '44', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Jam', 'acceptableActions': ['Jam'], 'explanation': '按你提供的 20bb 包，BTN 的 44：Raise 频率 0.000 / Jam 频率 1.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_btn_qts', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'BTN', 'effectiveBb': '20bb', 'actionBefore': 'Folded to BTN', 'heroHand': 'QTs', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'BTN', 'exact-pack'], 'options': ['Fold', 'Raise', 'Jam'], 'recommendedAction': 'Jam', 'acceptableActions': ['Jam'], 'explanation': '按你提供的 20bb 包，BTN 的 QTs：Raise 频率 0.026 / Jam 频率 0.948。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_sb_a2o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'SB', 'effectiveBb': '20bb', 'actionBefore': 'Folded to SB', 'heroHand': 'A2o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'SB', 'exact-pack'], 'options': ['Fold', 'Call', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Call', 'Raise', 'Jam', 'Fold'], 'explanation': '按你提供的 20bb 包，SB 的 A2o：Raise 频率 0.108 / Jam 频率 0.436。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_sb_a7s', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'SB', 'effectiveBb': '20bb', 'actionBefore': 'Folded to SB', 'heroHand': 'A7s', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'SB', 'exact-pack'], 'options': ['Fold', 'Call', 'Raise', 'Jam'], 'recommendedAction': 'Raise', 'acceptableActions': ['Raise'], 'explanation': '按你提供的 20bb 包，SB 的 A7s：Raise 频率 0.952 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_sb_66', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'SB', 'effectiveBb': '20bb', 'actionBefore': 'Folded to SB', 'heroHand': '66', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'SB', 'exact-pack'], 'options': ['Fold', 'Call', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Call', 'Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，SB 的 66：Raise 频率 0.244 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_sb_kjo', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'SB', 'effectiveBb': '20bb', 'actionBefore': 'Folded to SB', 'heroHand': 'KJo', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'SB', 'exact-pack'], 'options': ['Fold', 'Call', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Call', 'Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，SB 的 KJo：Raise 频率 0.524 / Jam 频率 0.010。这题现在按双文件一起训练。'},
-  {'id': '20bb_exact_sb_q8o', 'module': '20bb Open', 'stage': 'Preflop', 'heroPosition': 'SB', 'effectiveBb': '20bb', 'actionBefore': 'Folded to SB', 'heroHand': 'Q8o', 'context': '20bb-mtt-min_pioranges 双文件校正版', 'tags': ['20bb', 'SB', 'exact-pack'], 'options': ['Fold', 'Call', 'Raise', 'Jam'], 'recommendedAction': 'Mix', 'acceptableActions': ['Call', 'Raise', 'Fold'], 'explanation': '按你提供的 20bb 包，SB 的 Q8o：Raise 频率 0.500 / Jam 频率 0.000。这题现在按双文件一起训练。'},
-  { id:'15bb_sb_vs_btn_kqs', module:'15bb Reshove', stage:'Preflop', heroPosition:'SB', effectiveBb:'15bb', actionBefore:'BTN open 2.2bb', heroHand:'KQs', context:'中后期，前位弃牌', tags:['15bb','SB','vs BTN'], options:['Fold','Call','Jam','Raise'], recommendedAction:'Jam', acceptableActions:['Jam'], explanation:'15bb SB 对 BTN 宽开池，KQs 是高质量 reshove 手牌。' },
-  { id:'15bb_bb_vs_co_ato', module:'15bb Reshove', stage:'Preflop', heroPosition:'BB', effectiveBb:'15bb', actionBefore:'CO open 2.2bb', heroHand:'ATo', context:'后段盲注压力大', tags:['15bb','BB','vs CO'], options:['Fold','Call','Jam'], recommendedAction:'Jam', acceptableActions:['Jam'], explanation:'15bb BB 对 CO 开池，ATo 常常更适合直接 reshove。' },
-  { id:'30bb_bb_vs_btn_a5o', module:'BB Defend', stage:'Preflop', heroPosition:'BB', effectiveBb:'30bb', actionBefore:'BTN open 2.2bb', heroHand:'A5o', context:'常规深度', tags:['30bb','BB','defend'], options:['Fold','Call','3bet','Jam'], recommendedAction:'Call', acceptableActions:['Call','3bet'], explanation:'A5o 在 BB 对 BTN 一般具备防守价值，标准线偏 call。' },
-  { id:'10bb_btn_q9s', module:'10bb Jam', stage:'Preflop', heroPosition:'BTN', effectiveBb:'10bb', actionBefore:'Folded to BTN', heroHand:'Q9s', context:'短码阶段', tags:['10bb','BTN','jam'], options:['Fold','Raise','Jam','Call'], recommendedAction:'Jam', acceptableActions:['Jam'], explanation:'10bb BTN 以简化策略为主，Q9s 属于足够好的直接推进手牌。' },
-  { id:'bubble_medium_88', module:'Bubble ICM', stage:'ICM', heroPosition:'HJ', effectiveBb:'18bb', actionBefore:'UTG jam 7bb, Hero next to act', heroHand:'88', context:'还差2人进钱圈，你是中码', tags:['Bubble','ICM','18bb'], options:['Fold','Call','Jam'], recommendedAction:'Fold', acceptableActions:['Fold'], explanation:'泡沫期中码对短码 all-in 不能只看牌力，88 常常该收紧。' },
-  { id:'ft_bigstack_a4s', module:'Final Table', stage:'ICM', heroPosition:'BTN', effectiveBb:'24bb', actionBefore:'Folded to BTN', heroHand:'A4s', context:'FT 7人，Hero 领先筹码', tags:['FT','BTN','24bb'], options:['Fold','Raise','Jam'], recommendedAction:'Raise', acceptableActions:['Raise'], explanation:'FT 大码应扩大压制频率，但仍优先保留小开。' },
-  { id:'asia_series_20bb_multitable', module:'Asia Series Mode', stage:'Preflop', heroPosition:'SB', effectiveBb:'20bb', actionBefore:'BTN open 2.1bb, 你同时开4桌', heroHand:'AJo', context:'亚洲线上系列赛多桌决策', tags:['Asia Series','20bb','SB'], options:['Fold','Call','Jam'], recommendedAction:'Jam', acceptableActions:['Jam'], explanation:'线上多桌环境更需要简化体系，AJo 在 20bb SB 对 BTN open 多数直接 reshove。' }
+  {
+    "id": "20bb_exact_utg_a9o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "A9o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.476 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_a3s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "A3s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.004 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_a4s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "A4s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.984 / Call 0.016 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_a5s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "A5s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.998 / Call 0.002 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_a7s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "A7s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.998 / Call 0.002 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_a8s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "A8s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.998 / Call 0.002 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_kto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "KTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.158 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_kjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "KJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.992 / Call 0.002 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_kqo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "KQo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 1.000 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_qjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "QJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.228 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_qts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "QTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.994 / Call 0.006 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_jts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "JTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.994 / Call 0.006 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_t9s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "T9s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.994 / Call 0.006 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_98s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "98s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.008 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_87s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "87s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.002 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utg_55",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG",
+    "heroHand": "55",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.004 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_a9o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "A9o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.974 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_a3s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "A3s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.346 / Call 0.038 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_a4s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "A4s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.968 / Call 0.032 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_a5s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "A5s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.992 / Call 0.008 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_a7s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "A7s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.994 / Call 0.006 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_a8s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "A8s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.988 / Call 0.012 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_kto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "KTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.402 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_kjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "KJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.996 / Call 0.004 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_kqo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "KQo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.996 / Call 0.004 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_qto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "QTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.030 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_qjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "QJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.706 / Call 0.004 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_qts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "QTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.976 / Call 0.024 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_jts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "JTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.982 / Call 0.018 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_t9s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "T9s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.980 / Call 0.020 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_98s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "98s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.494 / Call 0.030 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_87s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "87s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.010 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_lj_55",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "LJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to LJ",
+    "heroHand": "55",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "LJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.118 / Call 0.016 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_a8o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "A8o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.604 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_a9o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "A9o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 1.000 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_a2s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "A2s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.012 / Call 0.044 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_a3s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "A3s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.948 / Call 0.052 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_a4s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "A4s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.982 / Call 0.018 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_a5s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "A5s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.986 / Call 0.014 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_a7s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "A7s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.992 / Call 0.008 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_a8s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "A8s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.958 / Call 0.042 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_kto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "KTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.980 / Call 0.020 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_kjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "KJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.994 / Call 0.006 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_kqo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "KQo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.988 / Call 0.012 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_qto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "QTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.450 / Call 0.006 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_qjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "QJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.996 / Call 0.004 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_qts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "QTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.958 / Call 0.042 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_jto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "JTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.254 / Call 0.002 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_jts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "JTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.964 / Call 0.036 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_t9s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "T9s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.972 / Call 0.028 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_98s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "98s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.944 / Call 0.054 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_87s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "87s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.166 / Call 0.030 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_76s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "76s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.014 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_55",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "55",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.940 / Call 0.060 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_utgp2_44",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "UTG+2",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to UTG+2",
+    "heroHand": "44",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "UTG+2",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.006 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_a7o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "A7o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.910 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_a8o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "A8o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 1.000 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_a9o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "A9o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.994 / Call 0.006 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_a2s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "A2s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.932 / Call 0.068 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_a3s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "A3s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.950 / Call 0.050 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_a4s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "A4s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.992 / Call 0.008 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_a5s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "A5s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.978 / Call 0.022 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_a7s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "A7s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.962 / Call 0.038 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_a8s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "A8s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.946 / Call 0.054 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_kto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "KTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.986 / Call 0.014 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_kjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "KJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.992 / Call 0.008 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_kqo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "KQo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.984 / Call 0.016 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_qto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "QTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.992 / Call 0.008 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_qjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "QJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 1.000 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_qts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "QTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.942 / Call 0.058 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_jto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "JTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.982 / Call 0.018 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_jts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "JTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.960 / Call 0.040 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_t9s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "T9s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.974 / Call 0.026 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_98s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "98s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.956 / Call 0.044 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_87s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "87s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.580 / Call 0.042 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_76s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "76s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.020 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_55",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "55",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.978 / Call 0.022 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_hj_44",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "HJ",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to HJ",
+    "heroHand": "44",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "HJ",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.042 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_a5o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "A5o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.998 / Call 0.002 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_a7o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "A7o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 1.000 / Call 0.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_a8o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "A8o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.994 / Call 0.006 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_a9o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "A9o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.996 / Call 0.004 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_a2s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "A2s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.894 / Call 0.106 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_a3s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "A3s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.960 / Call 0.040 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_a4s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "A4s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.954 / Call 0.046 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_a5s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "A5s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.974 / Call 0.026 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_a7s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "A7s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.988 / Call 0.012 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_a8s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "A8s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.976 / Call 0.024 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_kto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "KTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.986 / Call 0.014 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_kjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "KJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.986 / Call 0.014 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_kqo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "KQo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.992 / Call 0.008 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_qto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "QTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.998 / Call 0.002 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_qjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "QJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.988 / Call 0.012 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_qts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "QTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.942 / Call 0.058 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_jto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "JTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.998 / Call 0.002 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_jts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "JTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.940 / Call 0.060 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_t9s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "T9s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.976 / Call 0.024 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_98s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "98s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.974 / Call 0.026 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_87s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "87s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.960 / Call 0.040 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_76s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "76s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Fold"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.026 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_55",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "55",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.990 / Call 0.010 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_co_44",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "CO",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to CO",
+    "heroHand": "44",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "CO",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.972 / Call 0.028 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_a2o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A2o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.602 / Call 0.212 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_a3o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A3o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.862 / Call 0.138 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_a4o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A4o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.916 / Call 0.084 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_a5o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A5o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.968 / Call 0.032 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_a7o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A7o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.184 / Call 0.000 / Jam 0.816。"
+  },
+  {
+    "id": "20bb_exact_btn_a8o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A8o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.050 / Call 0.016 / Jam 0.934。"
+  },
+  {
+    "id": "20bb_exact_btn_a9o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A9o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.962 / Call 0.036 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_a2s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A2s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_btn_a3s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A3s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_btn_a4s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A4s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_btn_a5s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A5s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.206 / Call 0.108 / Jam 0.688。"
+  },
+  {
+    "id": "20bb_exact_btn_a7s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A7s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.886 / Call 0.114 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_a8s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "A8s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.886 / Call 0.114 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_kto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "KTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.900 / Call 0.100 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_kjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "KJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.870 / Call 0.006 / Jam 0.124。"
+  },
+  {
+    "id": "20bb_exact_btn_kqo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "KQo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.774 / Call 0.054 / Jam 0.172。"
+  },
+  {
+    "id": "20bb_exact_btn_qto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "QTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.950 / Call 0.050 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_qjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "QJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.886 / Call 0.114 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_qts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "QTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.026 / Call 0.026 / Jam 0.948。"
+  },
+  {
+    "id": "20bb_exact_btn_jto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "JTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.928 / Call 0.072 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_jts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "JTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.488 / Call 0.016 / Jam 0.496。"
+  },
+  {
+    "id": "20bb_exact_btn_t9s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "T9s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.830 / Call 0.170 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_98s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "98s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.910 / Call 0.090 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_87s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "87s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.864 / Call 0.136 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_76s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "76s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.850 / Call 0.150 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_55",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "55",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.914 / Call 0.086 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_44",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "44",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_btn_33",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "33",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_btn_22",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "22",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_btn_k8o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "K8o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.942 / Call 0.058 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_btn_q8o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "BTN",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to BTN",
+    "heroHand": "Q8o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "BTN",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.472 / Call 0.036 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_a2o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A2o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.108 / Call 0.456 / Jam 0.436。"
+  },
+  {
+    "id": "20bb_exact_sb_a3o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A3o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.108 / Call 0.226 / Jam 0.666。"
+  },
+  {
+    "id": "20bb_exact_sb_a4o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A4o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.334 / Call 0.324 / Jam 0.342。"
+  },
+  {
+    "id": "20bb_exact_sb_a5o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A5o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.036 / Call 0.000 / Jam 0.964。"
+  },
+  {
+    "id": "20bb_exact_sb_a7o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A7o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_sb_a8o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A8o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_sb_a9o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A9o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_sb_a2s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A2s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Call",
+    "acceptableActions": [
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 1.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_a3s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A3s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Call",
+    "acceptableActions": [
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 1.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_a4s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A4s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Call",
+    "acceptableActions": [
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 1.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_a5s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A5s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Call",
+    "acceptableActions": [
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.026 / Call 0.974 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_a7s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A7s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.952 / Call 0.048 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_a8s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "A8s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.570 / Call 0.430 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_kto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "KTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.254 / Call 0.746 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_kjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "KJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.524 / Call 0.468 / Jam 0.010。"
+  },
+  {
+    "id": "20bb_exact_sb_kqo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "KQo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Call",
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.288 / Jam 0.712。"
+  },
+  {
+    "id": "20bb_exact_sb_qto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "QTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.292 / Call 0.708 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_qjo",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "QJo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.390 / Call 0.608 / Jam 0.002。"
+  },
+  {
+    "id": "20bb_exact_sb_qts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "QTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Call",
+    "acceptableActions": [
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 1.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_jto",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "JTo",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Call",
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.062 / Call 0.762 / Jam 0.178。"
+  },
+  {
+    "id": "20bb_exact_sb_jts",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "JTs",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.426 / Call 0.574 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_t9s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "T9s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Raise",
+    "acceptableActions": [
+      "Raise"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.990 / Call 0.010 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_98s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "98s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.002 / Jam 0.998。"
+  },
+  {
+    "id": "20bb_exact_sb_87s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "87s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_sb_76s",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "76s",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Call",
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.482 / Jam 0.518。"
+  },
+  {
+    "id": "20bb_exact_sb_55",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "55",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Call",
+    "acceptableActions": [
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 1.000 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_44",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "44",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_sb_33",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "33",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_sb_22",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "22",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Jam",
+    "acceptableActions": [
+      "Jam"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.000 / Call 0.000 / Jam 1.000。"
+  },
+  {
+    "id": "20bb_exact_sb_k8o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "K8o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.550 / Call 0.450 / Jam 0.000。"
+  },
+  {
+    "id": "20bb_exact_sb_q8o",
+    "module": "20bb Open",
+    "stage": "Preflop",
+    "heroPosition": "SB",
+    "effectiveBb": "20bb",
+    "actionBefore": "Folded to SB",
+    "heroHand": "Q8o",
+    "context": "20bb 精确包训练题",
+    "tags": [
+      "20bb",
+      "SB",
+      "exact-pack"
+    ],
+    "options": [
+      "Fold",
+      "Raise",
+      "Call",
+      "Jam"
+    ],
+    "recommendedAction": "Mix",
+    "acceptableActions": [
+      "Raise",
+      "Call"
+    ],
+    "explanation": "按你提供的 20bb 包：Raise 0.500 / Call 0.500 / Jam 0.000。"
+  }
 ];
-
-
-const obsoleteExact20bbSpotIds = new Set(spots.filter(s => s.id && s.id.startsWith('20bb_exact_')).map(s => s.id));
-for (let i = spots.length - 1; i >= 0; i--) {
-  if (obsoleteExact20bbSpotIds.has(spots[i].id)) spots.splice(i, 1);
-}
-
-const obsolete20bbSpotIds = new Set([
-  '20bb_btn_open_a2o','20bb_btn_open_k7o','20bb_btn_open_q8o','20bb_btn_open_64s',
-  '20bb_co_open_a5o','20bb_co_open_k8s','20bb_co_open_q9o','20bb_co_open_t8s',
-  '20bb_hj_open_kto','20bb_hj_open_a7o','20bb_hj_open_87s','20bb_hj_open_qts',
-  '20bb_lj_open_a9o','20bb_lj_open_kto','20bb_lj_open_qjo','20bb_lj_open_98s',
-  '20bb_utg_open_a8s','20bb_utg_open_55','20bb_utg_open_kjs','20bb_utg_open_76s',
-  '20bb_sb_open_a5s','20bb_sb_open_66','20bb_sb_open_a7s','20bb_sb_open_qts'
-]);
-for (let i = spots.length - 1; i >= 0; i--) {
-  if (obsolete20bbSpotIds.has(spots[i].id)) spots.splice(i, 1);
-}
 
 const ruleCards = [
-  { title:'20bb 核心规则', items:['优先保留小开体系，不乱 jam。','中等强度牌先分 open / call-off / fold。','面对宽开池，优先考虑 reshove 而不是尴尬平跟。'] },
-  { title:'15bb 核心规则', items:['很多边缘 spot 要简化成 jam/fold。','SB / BB 对偷盲位是最值钱 spot。','别拿“看着还行”的牌去平跟把自己打残。'] },
-  { title:'BB Defend', items:['BB vs BTN 可以更宽 defend。','BB vs CO 要明显收紧。','Axo、小 suited、连子看位置和深度决定 defend。'] },
-  { title:'Bubble', items:['大码压中码，中码慎碰覆盖你的大码。','短码别盲等，先找自然 jam 点。','看牌力不够，要看淘汰风险。'] },
-  { title:'FT', items:['大码扩大施压，但别乱把优势变 coinflip。','中码最怕被覆盖时乱拼。','pay jump 越大，边缘 call 越该收。'] },
-  { title:'亚洲线上系列赛', items:['多桌时优先简化，不追求花活。','20bb/15bb 翻前要接近条件反射。','赛程选择本身就是技术，别乱报全赛程。'] }
+  { title:'20bb 精确包规则', items:['20bb 以后只以你提供的范围包为准。','训练动作按 Raise / Call / Jam / Fold 四类理解。','先把 20bb 练准，再扩其他深度。'] },
+  { title:'15bb 核心规则', items:['很多边缘 spot 要简化成 jam/fold。','SB / BB 对偷盲位是最值钱 spot。','别拿“看着还行”的牌去平跟把自己打残。'] }
 ];
 
-const storageKey = 'mttTrainerStateV3';
+const storageKey = 'mttTrainerStateV4';
 const defaultState = { total:0, correct:0, today:{}, mistakes:[], modules:{} };
 let state = loadState();
 let currentSpot = null;
 
-function loadState(){ try{return {...defaultState, ...JSON.parse(localStorage.getItem(storageKey)||'{}')}}catch{return JSON.parse(JSON.stringify(defaultState));}}
+function loadState(){ try{return {...defaultState, ...JSON.parse(localStorage.getItem(storageKey)||'{}')}}catch{return JSON.parse(JSON.stringify(defaultState));} }
 function saveState(){ localStorage.setItem(storageKey, JSON.stringify(state)); }
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
@@ -231,16 +4906,15 @@ function qsa(sel){ return document.querySelectorAll(sel); }
 
 function initTabs(){ qsa('.tab').forEach(btn=>btn.addEventListener('click',()=>{ qsa('.tab').forEach(x=>x.classList.remove('active')); qsa('.panel').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); qs(btn.dataset.tab+'Panel').classList.add('active'); renderAll(); })); }
 function initModules(){ const modules=['全部题目','只刷错题',...new Set(spots.map(s=>s.module))]; qs('moduleSelect').innerHTML=modules.map(m=>`<option value="${m}">${m}</option>`).join(''); }
-function getPool(){ const module=qs('moduleSelect').value; if(module==='全部题目') return spots; if(module==='只刷错题') return state.mistakes.length?state.mistakes:spots.slice(0,5); return spots.filter(s=>s.module===module); }
+function getPool(){ const module=qs('moduleSelect').value; if(module==='全部题目') return spots; if(module==='只刷错题') return state.mistakes.length?state.mistakes:spots.slice(0,20); return spots.filter(s=>s.module===module); }
 function pickSpot(){ const pool=getPool(); currentSpot=shuffle(pool)[0]; renderSpot(); }
 function renderSpot(){ if(!currentSpot) return; qs('spotModule').textContent=currentSpot.module; qs('spotStage').textContent=currentSpot.stage; qs('heroPosition').textContent=currentSpot.heroPosition; qs('effectiveBb').textContent=currentSpot.effectiveBb; qs('actionBefore').textContent=currentSpot.actionBefore; qs('heroHand').textContent=currentSpot.heroHand; qs('spotContext').textContent=currentSpot.context; qs('spotTags').textContent=currentSpot.tags.join(' / '); qs('answers').innerHTML=currentSpot.options.map(opt=>`<button data-action="${opt}">${opt}</button>`).join(''); qsa('#answers button').forEach(btn=>btn.addEventListener('click',()=>answerSpot(btn.dataset.action))); qs('feedbackBox').classList.add('hidden'); }
-function answerSpot(action){ const correct=currentSpot.acceptableActions.includes(action); state.total+=1; state.correct+=correct?1:0; const today=todayKey(); state.today[today]=(state.today[today]||0)+1; state.modules[currentSpot.module] ||= {total:0,correct:0}; state.modules[currentSpot.module].total +=1; state.modules[currentSpot.module].correct += correct?1:0; if(!correct){ if(!state.mistakes.some(x=>x.id===currentSpot.id)) state.mistakes.unshift(currentSpot);} else { state.mistakes=state.mistakes.filter(x=>x.id!==currentSpot.id);} saveState(); const box=qs('feedbackBox'); box.className=`feedback ${correct?'ok':'bad'}`; qs('feedbackTitle').textContent=correct?'答对了':'这题错了'; qs('recommendedAction').textContent=currentSpot.recommendedAction; qs('explanation').textContent=currentSpot.explanation; qs('acceptableActions').textContent=currentSpot.acceptableActions.join(' / '); box.classList.remove('hidden'); renderStats(); renderMistakes(); }
+function answerSpot(action){ const correct=currentSpot.acceptableActions.includes(action); state.total+=1; state.correct+=correct?1:0; const today=todayKey(); state.today[today]=(state.today[today]||0)+1; state.modules[currentSpot.module] ||= {total:0,correct:0}; state.modules[currentSpot.module].total +=1; state.modules[currentSpot.module].correct += correct?1:0; if(!correct){ if(!state.mistakes.some(x=>x.id===currentSpot.id)) state.mistakes.unshift(currentSpot); } else { state.mistakes=state.mistakes.filter(x=>x.id!==currentSpot.id); } saveState(); const box=qs('feedbackBox'); box.className=`feedback ${correct?'ok':'bad'}`; qs('feedbackTitle').textContent=correct?'答对了':'这题错了'; qs('recommendedAction').textContent=currentSpot.recommendedAction; qs('explanation').textContent=currentSpot.explanation; qs('acceptableActions').textContent=currentSpot.acceptableActions.join(' / '); box.classList.remove('hidden'); renderStats(); renderMistakes(); }
 function renderMistakes(){ const wrap=qs('mistakesList'); if(!state.mistakes.length){ wrap.innerHTML='<div class="item"><h4>目前没有错题</h4><p>继续刷题，把错题沉淀出来。</p></div>'; return; } wrap.innerHTML=state.mistakes.map(m=>`<div class="item"><h4>${m.module} ｜ ${m.heroPosition} ｜ ${m.heroHand}</h4><p><strong>局面：</strong>${m.actionBefore} ｜ ${m.effectiveBb} ｜ ${m.context}</p><p><strong>推荐动作：</strong>${m.recommendedAction}</p><p><strong>原因：</strong>${m.explanation}</p></div>`).join(''); }
 function renderCards(){ qs('ruleCards').innerHTML=ruleCards.map(c=>`<div class="card"><h3>${c.title}</h3><ul>${c.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join(''); }
 function renderStats(){ qs('todayStats').textContent=`今日 ${state.today[todayKey()]||0} 题`; qs('statTotal').textContent=state.total; qs('statAccuracy').textContent=state.total?`${Math.round((state.correct/state.total)*100)}%`:'0%'; qs('statMistakes').textContent=state.mistakes.length; const weakest=Object.entries(state.modules).filter(([,v])=>v.total>0).map(([k,v])=>({k,acc:v.correct/v.total})).sort((a,b)=>a.acc-b.acc)[0]; qs('statWeakest').textContent=weakest?weakest.k:'-'; const rows=Object.entries(state.modules).sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>`<div class="item"><h4>${k}</h4><p>总题数：${v.total} ｜ 正确率：${v.total?Math.round(v.correct/v.total*100):0}%</p></div>`); qs('moduleBreakdown').innerHTML=rows.length?rows.join(''):'<div class="item"><p>还没有模块统计。</p></div>'; }
-
-function classifyHand(stack, pos, hand){ const cfg = viewerRanges[stack]?.[pos]; if(!cfg) return {cls:'fold', text:'当前未配置'}; if(pos==='SB'){ const inRaise = cfg.open && cfg.open.includes(hand); const inCall = cfg.call && cfg.call.includes(hand); const inJam = cfg.jam && cfg.jam.includes(hand); const inMix = cfg.mix && cfg.mix.includes(hand); if(inCall && !inRaise && !inJam) return {cls:'mix', text:'建议 Call'}; if(inRaise && !inCall && !inJam) return {cls:'open', text:'建议 Raise'}; if(inJam && !inRaise && !inCall) return {cls:'jam', text:'建议 Jam / All-in'}; if(inRaise && inCall && !inJam) return {cls:'mix', text:'Raise / Call 双动作'}; if(inRaise && inJam && !inCall) return {cls:'mix', text:'Raise / Jam 双动作'}; if(inCall && inJam && !inRaise) return {cls:'mix', text:'Call / Jam 双动作'}; if(inMix || inRaise || inCall || inJam) return {cls:'mix', text:'多动作边界'}; return {cls:'fold', text:'建议 Fold'}; } if(cfg.jam && cfg.jam.includes(hand)) return {cls:'jam', text:'建议 Jam / All-in'}; if(cfg.open && cfg.open.includes(hand)) return {cls:'open', text:'建议 Open / Raise'}; if(cfg.call && cfg.call.includes(hand)) return {cls:'mix', text:'建议 Call'}; if(cfg.mix.includes(hand)) return {cls:'mix', text:'边缘 / 可混'}; return {cls:'fold', text:'建议 Fold'}; }
-function renderViewer(){ const stack=qs('viewerStack')?.value || '20bb'; const pos=qs('viewerPosition')?.value || 'UTG'; const cfg=viewerRanges[stack]?.[pos]; qs('rangeTitle').textContent=`${stack} / ${pos} / RFI`; qs('rangeSummary').textContent=cfg?.summary || '暂无数据'; const grid=qs('rangeGrid'); if(!grid) return; grid.innerHTML=''; allHands.forEach(hand=>{ const c=classifyHand(stack,pos,hand); const el=document.createElement('button'); el.className=`range-cell ${c.cls}`; el.textContent=hand; el.addEventListener('click',()=>{ qs('cellDetail').innerHTML=`<strong>${hand}</strong><br>${c.text}<br><span style="color:#95a1c9">${stack} / ${pos} / RFI</span>`; }); grid.appendChild(el); }); }
+function classifyHand(stack, pos, hand){ const cfg = viewerRanges[stack]?.[pos]; if(!cfg) return {cls:'fold', text:'当前未配置'}; const inRaise = cfg.raise?.includes(hand); const inCall = cfg.call?.includes(hand); const inJam = cfg.jam?.includes(hand); const inMix = cfg.mix?.includes(hand); if(inRaise && !inCall && !inJam) return {cls:'open', text:'建议 Raise'}; if(inCall && !inRaise && !inJam) return {cls:'mix', text:'建议 Call'}; if(inJam && !inRaise && !inCall) return {cls:'jam', text:'建议 Jam / All-in'}; if(inRaise || inCall || inJam || inMix) { const actions=[inRaise?'Raise':'', inCall?'Call':'', inJam?'Jam':''].filter(Boolean).join(' / ') || '边界多动作'; return {cls:'mix', text:actions}; } return {cls:'fold', text:'建议 Fold'}; }
+function renderViewer(){ const stack=qs('viewerStack')?.value || '20bb'; const pos=qs('viewerPosition')?.value || 'UTG'; const cfg=viewerRanges[stack]?.[pos]; qs('rangeTitle').textContent=`${stack} / ${pos}`; qs('rangeSummary').textContent=cfg?.summary || '暂无数据'; const grid=qs('rangeGrid'); if(!grid) return; grid.innerHTML=''; allHands.forEach(hand=>{ const c=classifyHand(stack,pos,hand); const el=document.createElement('button'); el.className=`range-cell ${c.cls}`; el.textContent=hand; el.addEventListener('click',()=>{ qs('cellDetail').innerHTML=`<strong>${hand}</strong><br>${c.text}<br><span style="color:#95a1c9">${stack} / ${pos}</span>`; }); grid.appendChild(el); }); }
 function renderAll(){ renderMistakes(); renderCards(); renderStats(); renderViewer(); }
 
 document.addEventListener('DOMContentLoaded', ()=>{ initTabs(); initModules(); qs('nextSpotBtn').addEventListener('click', pickSpot); qs('moduleSelect').addEventListener('change', pickSpot); qs('clearMistakesBtn').addEventListener('click', ()=>{ state.mistakes=[]; saveState(); renderMistakes(); renderStats(); }); ['viewerStack','viewerPosition','viewerScenario'].forEach(id=>qs(id)?.addEventListener('change', renderViewer)); renderAll(); pickSpot(); });
